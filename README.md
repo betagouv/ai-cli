@@ -82,6 +82,8 @@ your-project/
 │   └── ...
 │
 ├── .cursor/                      # ❌ Generated (gitignored)
+│   ├── commands/ → .ai/commands/
+│   ├── agents/ → .ai/agents/
 │   └── rules/
 │       ├── main.mdc → .ai/AGENTS.md
 │       └── context/ → .ai/context/
@@ -256,6 +258,8 @@ bash templates/ides/cursor/init.sh
 **Creates symlinks**:
 - `.cursor/rules/main.mdc` → `.ai/AGENTS.md`
 - `.cursor/rules/context/` → `.ai/context/`
+- `.cursor/commands/` → `.ai/commands/`
+- `.cursor/agents/` → `.ai/agents/`
 
 **Reference in Cursor**:
 - `@.cursor/rules/main.mdc`
