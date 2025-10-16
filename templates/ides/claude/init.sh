@@ -58,32 +58,56 @@ preserve_user_customizations() {
     # Ensure .ai directories exist
     mkdir -p .ai/commands .ai/agents .ai/avatars
 
-    # Copy custom commands (if commands is a regular directory, not a symlink)
-    if [ -d ".claude/commands" ] && [ ! -L ".claude/commands" ]; then
-        find .claude/commands -type f -name "*.md" 2>/dev/null | while read file; do
-            relative_path="${file#.claude/commands/}"
-            target_dir=".ai/commands/$(dirname "$relative_path")"
-            mkdir -p "$target_dir"
-            cp "$file" "$target_dir/"
-            echo -e "${GREEN}✓${NC} Copied custom command: $relative_path"
-        done
-    fi
+    # List known mapped folders
+    known_folders=(commands agents output-styles)
 
-    # Copy custom agents (if agents is a regular directory, not a symlink)
-    if [ -d ".claude/agents" ] && [ ! -L ".claude/agents" ]; then
-        find .claude/agents -type f -name "*.md" 2>/dev/null | while read file; do
-            cp "$file" .ai/agents/
-            echo -e "${GREEN}✓${NC} Copied custom agent: $(basename "$file")"
-        done
-    fi
+    # Handle known folders and also copy any other custom folders
+    for folder in .claude/*; do
+        [ -d "$folder" ] || continue
+        folder_name="$(basename "$folder")"
 
-    # Copy custom avatars (if output-styles is a regular directory, not a symlink)
-    if [ -d ".claude/output-styles" ] && [ ! -L ".claude/output-styles" ]; then
-        find .claude/output-styles -type f -name "*.md" 2>/dev/null | while read file; do
-            cp "$file" .ai/avatars/
-            echo -e "${GREEN}✓${NC} Copied custom avatar: $(basename "$file")"
-        done
-    fi
+        # Determine .ai target dir
+        target_dir=""
+        if [[ "$folder_name" == "commands" ]]; then
+            target_dir=".ai/commands"
+            # Only copy if it's not a symlink
+            if [ ! -L "$folder" ]; then
+                find "$folder" -type f -name "*.md" 2>/dev/null | while read file; do
+                    relative_path="${file#$folder/}"
+                    dest_dir="$target_dir/$(dirname "$relative_path")"
+                    mkdir -p "$dest_dir"
+                    cp "$file" "$dest_dir/"
+                    echo -e "${GREEN}✓${NC} Copied custom command: $relative_path"
+                done
+            fi
+            continue
+        elif [[ "$folder_name" == "agents" ]]; then
+            target_dir=".ai/agents"
+            if [ ! -L "$folder" ]; then
+                find "$folder" -type f -name "*.md" 2>/dev/null | while read file; do
+                    cp "$file" "$target_dir/"
+                    echo -e "${GREEN}✓${NC} Copied custom agent: $(basename "$file")"
+                done
+            fi
+            continue
+        elif [[ "$folder_name" == "output-styles" ]]; then
+            target_dir=".ai/avatars"
+            if [ ! -L "$folder" ]; then
+                find "$folder" -type f -name "*.md" 2>/dev/null | while read file; do
+                    cp "$file" "$target_dir/"
+                    echo -e "${GREEN}✓${NC} Copied custom avatar: $(basename "$file")"
+                done
+            fi
+            continue
+        else
+            # For any other folder, copy its full tree to .ai/<folder_name>, but skip symlinks
+            if [ ! -L "$folder" ]; then
+                mkdir -p ".ai/${folder_name}"
+                cp -R "$folder/." ".ai/${folder_name}/"
+                echo -e "${GREEN}✓${NC} Copied custom folder: $folder_name → .ai/${folder_name}/"
+            fi
+        fi
+    done
 }
 
 cleanup_old_config() {
