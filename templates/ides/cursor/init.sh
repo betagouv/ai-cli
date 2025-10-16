@@ -23,7 +23,7 @@ NC='\033[0m'
 
 # Global variables
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-BACKUP_DIR=".cursor.backup_${TIMESTAMP}"
+BACKUP_DIR=".tmp/cursor.backup_${TIMESTAMP}"
 
 # ==============================================================================
 # Functions
@@ -42,6 +42,7 @@ backup_existing_config() {
     fi
 
     echo -e "${YELLOW}⚠️  Existing .cursor folder found. Backing up...${NC}"
+    mkdir -p .tmp
     cp -r .cursor "$BACKUP_DIR"
     echo -e "${GREEN}✓${NC} Backup created at $BACKUP_DIR"
 }
@@ -124,6 +125,10 @@ print_summary() {
     echo "In Cursor, reference with:"
     echo "  @.cursor/rules/main.mdc"
     echo "  @.cursor/rules/context/architecture.md"
+    echo ""
+    if [ -d ".tmp" ]; then
+        echo -e "${BLUE}📦 Backup files are stored in .tmp/${NC}"
+    fi
 }
 
 # ==============================================================================

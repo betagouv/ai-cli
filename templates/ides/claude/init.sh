@@ -23,7 +23,7 @@ NC='\033[0m'
 
 # Global variables
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-BACKUP_DIR=".claude.backup_${TIMESTAMP}"
+BACKUP_DIR=".tmp/claude.backup_${TIMESTAMP}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # ==============================================================================
@@ -43,6 +43,7 @@ backup_existing_config() {
     fi
 
     echo -e "${YELLOW}⚠️  Existing .claude folder found. Backing up...${NC}"
+    mkdir -p .tmp
     cp -r .claude "$BACKUP_DIR"
     echo -e "${GREEN}✓${NC} Backup created at $BACKUP_DIR"
 }
@@ -149,6 +150,10 @@ print_summary() {
     echo ""
     echo "Reference context with:"
     echo "  @.ai/context/architecture.md"
+    echo ""
+    if [ -d ".tmp" ]; then
+        echo -e "${BLUE}📦 Backup files are stored in .tmp/${NC}"
+    fi
 }
 
 # ==============================================================================

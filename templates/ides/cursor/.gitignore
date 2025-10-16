@@ -1,2 +1,5 @@
 # Cursor - Ignore entire folder (dynamically generated symlinks)
 .cursor/
+
+# Backups
+.tmp/

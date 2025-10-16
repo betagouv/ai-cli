@@ -3,3 +3,6 @@
 .claude/agents
 .claude/output-styles
 .claude/settings.json
+
+# Backups
+.tmp/

@@ -59,7 +59,7 @@ NC='\033[0m'
 
 # Global variables
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-BACKUP_DIR=".your-ide.backup_${TIMESTAMP}"
+BACKUP_DIR=".tmp/your-ide.backup_${TIMESTAMP}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # ==============================================================================
@@ -79,6 +79,7 @@ backup_existing_config() {
     fi
 
     echo -e "${YELLOW}⚠️  Existing .your-ide folder found. Backing up...${NC}"
+    mkdir -p .tmp
     cp -r .your-ide "$BACKUP_DIR"
     echo -e "${GREEN}✓${NC} Backup created at $BACKUP_DIR"
 }
@@ -156,6 +157,10 @@ print_summary() {
     echo "  .your-ide/rules/                 → .ai/context/"
     echo ""
     echo "✨ Dynamic updates: Changes to .ai/ are immediately available!"
+    echo ""
+    if [ -d ".tmp" ]; then
+        echo -e "${BLUE}📦 Backup files are stored in .tmp/${NC}"
+    fi
 }
 
 # ==============================================================================
