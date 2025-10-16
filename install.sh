@@ -93,40 +93,48 @@ if [ "$CLEANUP_TEMP" = true ]; then
     trap "rm -rf $TEMP_DIR" EXIT
 fi
 
-# Multi-select function - returns selected indices (0-based)
+# Multi-select function using simple prompt
 multi_select() {
     local prompt="$1"
     shift
     local options=("$@")
-    local selected_indices=()
+    local selected_items=()
 
-    echo -e "${BLUE}${prompt}${NC}"
-    echo -e "${YELLOW}(Use numbers separated by spaces, e.g., '1 3 5', or 'all' for everything)${NC}"
-    echo ""
+    # Display to terminal, not captured by command substitution
+    echo -e "${BLUE}${prompt}${NC}" >&2
+    echo -e "${YELLOW}Enter space-separated numbers (e.g., '1 3 5'), or 'all' for everything${NC}" >&2
+    echo "" >&2
 
     # Display options with numbers
     for i in "${!options[@]}"; do
-        echo "  $((i+1)). ${options[$i]}"
+        echo "  $((i+1)). ${options[$i]}" >&2
     done
 
-    echo ""
+    echo "" >&2
     read -p "Your selection: " -r selection </dev/tty
 
     # Handle 'all' selection
     if [[ "$selection" == "all" ]]; then
-        for i in "${!options[@]}"; do
-            selected_indices+=("$i")
-        done
+        selected_items=("${options[@]}")
     else
-        # Parse space-separated numbers and convert to 0-based indices
-        for num in $selection; do
-            if [[ "$num" =~ ^[0-9]+$ ]] && [ "$num" -ge 1 ] && [ "$num" -le "${#options[@]}" ]; then
-                selected_indices+=("$((num-1))")
+        # Process space-separated numbers
+        for choice_num in $selection; do
+            # Check if the choice number is valid
+            if [[ "$choice_num" =~ ^[0-9]+$ ]] && (( choice_num > 0 && choice_num <= ${#options[@]} )); then
+                selected_items+=("${options[choice_num - 1]}")
+            elif [[ "$choice_num" =~ ^[0-9]+$ ]]; then
+                echo "Invalid selection: $choice_num" >&2
             fi
         done
+
+        # Remove duplicates
+        if [ ${#selected_items[@]} -gt 0 ]; then
+            selected_items=($(printf '%s\n' "${selected_items[@]}" | sort -u))
+        fi
     fi
 
-    echo "${selected_indices[@]}"
+    # Only output the result to stdout (captured by command substitution)
+    echo "${selected_items[@]}"
 }
 
 # Select contexts (frameworks/languages)
@@ -155,11 +163,12 @@ if [ -d "$CONTEXT_DIR" ]; then
 
     # Show multi-select menu
     if [ ${#available_contexts[@]} -gt 0 ]; then
-        selected_indices=($(multi_select "Which contexts do you want to include?" "${context_displays[@]}"))
+        selected_displays=($(multi_select "Which contexts do you want to include?" "${context_displays[@]}"))
 
-        # Get selected contexts by index
-        for idx in "${selected_indices[@]}"; do
-            SELECTED_CONTEXTS+=("${available_contexts[$idx]}")
+        # Map display names back to folder names
+        for display in "${selected_displays[@]}"; do
+            display_lower=$(echo "$display" | tr '[:upper:]' '[:lower:]')
+            SELECTED_CONTEXTS+=("$display_lower")
         done
     fi
 fi
@@ -214,11 +223,17 @@ if [ -d "$IDE_DIR" ]; then
 
     # Show multi-select menu
     if [ ${#available_ides[@]} -gt 0 ]; then
-        selected_indices=($(multi_select "Which AI tools will your team use?" "${ide_displays[@]}"))
+        selected_displays=($(multi_select "Which AI tools will your team use?" "${ide_displays[@]}"))
 
-        # Get selected IDEs by index
-        for idx in "${selected_indices[@]}"; do
-            TOOLS+=("${available_ides[$idx]}")
+        # Map display names back to folder names
+        for display in "${selected_displays[@]}"; do
+            # Find the corresponding folder name
+            for i in "${!ide_displays[@]}"; do
+                if [[ "${ide_displays[$i]}" == "$display" ]]; then
+                    TOOLS+=("${available_ides[$i]}")
+                    break
+                fi
+            done
         done
     fi
 else
