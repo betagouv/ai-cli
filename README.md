@@ -23,12 +23,12 @@ Modern development teams face a configuration nightmare when using AI assistants
 
 ### Key Benefits
 
-✅ **Write once, use everywhere** - One configuration, all IDEs
-✅ **Git-friendly** - Commit only `.ai/`, IDE configs are generated
-✅ **Team synchronization** - Everyone gets the same guidelines
-✅ **Dynamic updates** - Add a file to `.ai/`, it appears in your IDE instantly
-✅ **Backup protection** - Existing configurations are preserved in `.tmp/`
-✅ **Works everywhere** - Any bash system (macOS, Linux, WSL)
+- ✅ **Write once, use everywhere** - One configuration, all IDEs
+- ✅ **Git-friendly** - Commit only `.ai/`, IDE configs are generated
+- ✅ **Team synchronization** - Everyone gets the same guidelines
+- ✅ **Dynamic updates** - Add a file to `.ai/`, it appears in your IDE instantly
+- ✅ **Backup protection** - Existing configurations are preserved in `.tmp/`
+- ✅ **Works everywhere** - Any bash system (macOS, Linux, WSL)
 
 ## 📦 Installation
 
