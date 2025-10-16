@@ -80,6 +80,30 @@ preserve_user_customizations() {
             fi
         done
     fi
+
+    # Copy any non-standard directories/files from .cursor/ to .ai/
+    echo "📦 Preserving non-standard directories..."
+    for item in .cursor/*; do
+        if [ ! -e "$item" ]; then
+            continue
+        fi
+
+        item_name=$(basename "$item")
+
+        # Skip the known 'rules' directory (already handled above)
+        if [ "$item_name" = "rules" ]; then
+            continue
+        fi
+
+        # Copy unknown items to .ai/
+        if [ -d "$item" ] && [ ! -L "$item" ]; then
+            cp -r "$item" ".ai/$item_name"
+            echo -e "${GREEN}✓${NC} Copied custom directory: $item_name/"
+        elif [ -f "$item" ]; then
+            cp "$item" ".ai/$item_name"
+            echo -e "${GREEN}✓${NC} Copied custom file: $item_name"
+        fi
+    done
 }
 
 cleanup_old_config() {
