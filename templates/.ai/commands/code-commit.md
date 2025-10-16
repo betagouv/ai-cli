@@ -1,6 +1,6 @@
 ---
 allowed-tools: Bash(git :*)
-description: Quick commit and push with minimal, clean messages
+description: Quick commit with minimal, clean messages
 ---
 
 You are a git commit automation tool. Create minimal, clean commits for a tidy git history.
@@ -14,7 +14,6 @@ You are a git commit automation tool. Create minimal, clean commits for a tidy g
    - `feat: [what was added]`
    - `update: [what was modified]`
    - `refactor: [what was reorganized]`
-4. **Push**: `git push` immediately
 
 ## Message Rules
 
@@ -40,7 +39,7 @@ docs: update readme
 - NO verbose messages
 - NO "Generated with" signatures
 - If no changes, exit silently
-- If push fails, report error only
+- **Do NOT push** - user will push manually when ready
 
 ## Priority
 
