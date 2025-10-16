@@ -49,7 +49,7 @@ fi
 # Check if .ai directory already exists
 if [ -d ".ai" ]; then
     echo -e "${YELLOW}⚠️  .ai folder already exists${NC}"
-    read -p "Do you want to overwrite existing files? (y/N): " -n 1 -r
+    read -p "Do you want to overwrite existing files? (y/N): " -n 1 -r </dev/tty
     echo
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
         echo -e "${YELLOW}Installation cancelled${NC}"
@@ -59,10 +59,10 @@ fi
 
 # Project information
 echo -e "${BLUE}Project Information${NC}"
-read -p "Project name [$(basename "$PWD")]: " PROJECT_NAME
+read -p "Project name [$(basename "$PWD")]: " PROJECT_NAME </dev/tty
 PROJECT_NAME=${PROJECT_NAME:-$(basename "$PWD")}
 
-read -p "Project description: " PROJECT_DESC
+read -p "Project description: " PROJECT_DESC </dev/tty
 
 echo ""
 echo -e "${BLUE}📝 Downloading templates...${NC}"
@@ -113,7 +113,7 @@ if [ -d "$CONTEXT_DIR" ]; then
             rest_chars=$(echo "$context_name" | cut -c2-)
             context_display="${first_char}${rest_chars}"
 
-            read -p "Include ${context_display} context? (Y/n): " -n 1 -r RESPONSE
+            read -p "Include ${context_display} context? (Y/n): " -n 1 -r RESPONSE </dev/tty
             echo
             if [[ ! $RESPONSE =~ ^[Nn]$ ]]; then
                 SELECTED_CONTEXTS=("${SELECTED_CONTEXTS[@]}" "$context_name")
@@ -165,7 +165,7 @@ if [ -d "$IDE_DIR" ]; then
                 ide_display="GitHub Copilot"
             fi
 
-            read -p "Install ${ide_display} configuration? (Y/n): " -n 1 -r RESPONSE
+            read -p "Install ${ide_display} configuration? (Y/n): " -n 1 -r RESPONSE </dev/tty
             echo
             if [[ ! $RESPONSE =~ ^[Nn]$ ]]; then
                 TOOLS+=("$ide_name")
