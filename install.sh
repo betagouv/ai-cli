@@ -93,33 +93,75 @@ if [ "$CLEANUP_TEMP" = true ]; then
     trap "rm -rf $TEMP_DIR" EXIT
 fi
 
+# Multi-select function - returns selected indices (0-based)
+multi_select() {
+    local prompt="$1"
+    shift
+    local options=("$@")
+    local selected_indices=()
+
+    echo -e "${BLUE}${prompt}${NC}"
+    echo -e "${YELLOW}(Use numbers separated by spaces, e.g., '1 3 5', or 'all' for everything)${NC}"
+    echo ""
+
+    # Display options with numbers
+    for i in "${!options[@]}"; do
+        echo "  $((i+1)). ${options[$i]}"
+    done
+
+    echo ""
+    read -p "Your selection: " -r selection </dev/tty
+
+    # Handle 'all' selection
+    if [[ "$selection" == "all" ]]; then
+        for i in "${!options[@]}"; do
+            selected_indices+=("$i")
+        done
+    else
+        # Parse space-separated numbers and convert to 0-based indices
+        for num in $selection; do
+            if [[ "$num" =~ ^[0-9]+$ ]] && [ "$num" -ge 1 ] && [ "$num" -le "${#options[@]}" ]; then
+                selected_indices+=("$((num-1))")
+            fi
+        done
+    fi
+
+    echo "${selected_indices[@]}"
+}
+
 # Select contexts (frameworks/languages)
 echo ""
-echo -e "${BLUE}Which contexts do you want to include?${NC}"
-echo -e "${YELLOW}(You can select multiple by answering Y to each)${NC}"
-echo ""
-
 SELECTED_CONTEXTS=()
 CONTEXT_DIR="$TEMP_DIR/templates/.ai/context"
 
 if [ -d "$CONTEXT_DIR" ]; then
-    # Loop through each context folder
+    # Collect all context folders
+    available_contexts=()
+    context_displays=()
+
     for context_path in "$CONTEXT_DIR"/*; do
         if [ -d "$context_path" ]; then
             context_name=$(basename "$context_path")
 
-            # Capitalize first letter for display (portable way)
+            # Capitalize first letter for display
             first_char=$(echo "$context_name" | cut -c1 | tr '[:lower:]' '[:upper:]')
             rest_chars=$(echo "$context_name" | cut -c2-)
             context_display="${first_char}${rest_chars}"
 
-            read -p "Include ${context_display} context? (Y/n): " -n 1 -r RESPONSE </dev/tty
-            echo
-            if [[ ! $RESPONSE =~ ^[Nn]$ ]]; then
-                SELECTED_CONTEXTS=("${SELECTED_CONTEXTS[@]}" "$context_name")
-            fi
+            available_contexts+=("$context_name")
+            context_displays+=("$context_display")
         fi
     done
+
+    # Show multi-select menu
+    if [ ${#available_contexts[@]} -gt 0 ]; then
+        selected_indices=($(multi_select "Which contexts do you want to include?" "${context_displays[@]}"))
+
+        # Get selected contexts by index
+        for idx in "${selected_indices[@]}"; do
+            SELECTED_CONTEXTS+=("${available_contexts[$idx]}")
+        done
+    fi
 fi
 
 # Set FRAMEWORK for placeholder replacement (use first selected or "Other")
@@ -141,16 +183,16 @@ else
     FRAMEWORK="Other"
 fi
 
-echo ""
-echo -e "${BLUE}Which AI tools will your team use?${NC}"
-echo ""
-
 # AI Tools selection - dynamically discover available IDEs
+echo ""
 TOOLS=()
 IDE_DIR="$TEMP_DIR/templates/ides"
 
 if [ -d "$IDE_DIR" ]; then
-    # Loop through each IDE folder
+    # Collect all IDE folders
+    available_ides=()
+    ide_displays=()
+
     for ide_path in "$IDE_DIR"/*; do
         if [ -d "$ide_path" ]; then
             ide_name=$(basename "$ide_path")
@@ -165,13 +207,20 @@ if [ -d "$IDE_DIR" ]; then
                 ide_display="GitHub Copilot"
             fi
 
-            read -p "Install ${ide_display} configuration? (Y/n): " -n 1 -r RESPONSE </dev/tty
-            echo
-            if [[ ! $RESPONSE =~ ^[Nn]$ ]]; then
-                TOOLS+=("$ide_name")
-            fi
+            available_ides+=("$ide_name")
+            ide_displays+=("$ide_display")
         fi
     done
+
+    # Show multi-select menu
+    if [ ${#available_ides[@]} -gt 0 ]; then
+        selected_indices=($(multi_select "Which AI tools will your team use?" "${ide_displays[@]}"))
+
+        # Get selected IDEs by index
+        for idx in "${selected_indices[@]}"; do
+            TOOLS+=("${available_ides[$idx]}")
+        done
+    fi
 else
     echo -e "${RED}❌ No IDE templates found${NC}"
     exit 1
