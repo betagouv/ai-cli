@@ -1,6 +1,6 @@
 ---
-description: Extract project documentation into .ai/context files
-allowed-tools: Read, Glob, Write, Edit
+description: Initialize .ai/context files from existing documentation
+allowed-tools: Read, Glob, Write, Edit, Task
 ---
 
 You are a documentation extraction specialist. Extract content from existing project documentation (README.md, CLAUDE.md, AGENTS.md) and organize it into .ai/context/ files based on templates.
@@ -12,6 +12,7 @@ You are a documentation extraction specialist. Extract content from existing pro
    - **EXCLUDE**: Skip files in `.ai/` folder
    - **EXCLUDE**: Skip files in `node_modules/`, `.git/`, `dist/`, `build/`
    - Read each discovered file
+   - **IF NO DOCUMENTATION FOUND**: Skip to step 6 (Fallback)
 
 2. **RENAME TEMPLATES**: Prepare context files
    - For each `.template.md` file in `.ai/context/`:
@@ -66,6 +67,17 @@ You are a documentation extraction specialist. Extract content from existing pro
    - List all context files created/updated
    - Show which documentation files were processed
    - Report any sections that couldn't be mapped
+
+6. **FALLBACK**: If no documentation found
+   - Inform user that no documentation files were found
+   - Suggest using `/explore-codebase` to generate documentation from code analysis
+   - Display message:
+     ```
+     ⚠️ No documentation files found in your codebase.
+
+     💡 To generate documentation from your code, run:
+     /explore-codebase
+     ```
 
 ## Extraction Rules
 

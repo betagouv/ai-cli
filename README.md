@@ -96,12 +96,12 @@ your-project/
 curl -fsSL https://raw.githubusercontent.com/betagouv/ai-cli/main/install.sh | bash
 ```
 
-### 2. Extract Existing Documentation
+### 2. Initialize Context Files
 
 If you already have documentation scattered across `README.md`, `CLAUDE.md`, or `AGENTS.md` files:
 
 ```bash
-/context-extract
+/init
 ```
 
 This command:
@@ -109,6 +109,7 @@ This command:
 - Extracts relevant sections
 - Organizes them into `.ai/context/` files
 - **Preserves original text exactly** (no AI rewriting)
+- **If no documentation found**: Suggests using `/explore-codebase` to generate from code
 
 ### 3. Commit Your Configuration
 
@@ -156,7 +157,7 @@ bash templates/ides/claude/init.sh
 │       └── CODE-STYLE.md
 │
 ├── commands/                     # Custom slash commands
-│   └── context-extract.md        # /context-extract command
+│   └── init.md                   # /init command
 │
 ├── agents/                       # Specialized agents
 │   └── .gitkeep
@@ -169,9 +170,9 @@ bash templates/ides/claude/init.sh
 
 Once installed, you have access to custom slash commands in Claude Code:
 
-### `/context-extract`
+### `/init`
 
-**Purpose**: Extract and organize existing documentation into `.ai/context/` files
+**Purpose**: Initialize `.ai/context/` files from existing documentation
 
 **What it does**:
 1. Scans your codebase for `README.md`, `CLAUDE.md`, `AGENTS.md` (excluding `.ai/` folder)
@@ -179,11 +180,15 @@ Once installed, you have access to custom slash commands in Claude Code:
 3. Maps them to appropriate context files (e.g., "Coding Guidelines" → `CODING-STYLE.md`)
 4. **Preserves original text exactly** - no AI rewriting or improvements
 5. Adds source comments to track where content came from
+6. **If no documentation found**: Suggests using `/explore-codebase` to generate from code analysis
 
 **Usage**:
 ```bash
 # In Claude Code
-/context-extract
+/init
+
+# If no documentation exists, follow up with:
+/explore-codebase
 ```
 
 **Example output**:
@@ -196,6 +201,10 @@ Once installed, you have access to custom slash commands in Claude Code:
   - ARCHITECTURE.md (2 sections added)
   - CODING-STYLE.md (1 section added)
   - OVERVIEW.md (3 sections added)
+
+# Or if no documentation:
+⚠️ No documentation files found.
+💡 Run /explore-codebase to generate documentation from your codebase.
 ```
 
 ## 🔧 How It Works
