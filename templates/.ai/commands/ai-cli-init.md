@@ -63,12 +63,43 @@ You are a documentation extraction specialist. Extract content from existing pro
      [Original text copied exactly]
      ```
 
-5. **VERIFY**: Check extraction results
+5. **REMOVE EXTRACTED CONTENT**: Clean up original files
+   - **SAFETY**: Before removing, verify content was successfully copied to `.ai/context/`
+   - For each documentation file that had content extracted:
+     - Remove the extracted sections from the original file
+     - Keep the file structure (headings hierarchy)
+     - Add a reference comment pointing to the new location
+     - Example:
+       ```markdown
+       ## Architecture
+       <!-- This section has been moved to .ai/context/ARCHITECTURE.md -->
+       ```
+   - **PRESERVE**: Keep sections that weren't extracted
+   - **SPECIAL HANDLING FOR README.md**:
+     - **ALWAYS KEEP** these human-facing sections (do NOT remove):
+       - Installation
+       - Getting Started
+       - Usage
+       - Quick Start
+       - Requirements
+       - Setup
+       - Contributing
+       - License
+     - **REMOVE** technical/AI-specific sections that moved to `.ai/context/`:
+       - Architecture
+       - Testing
+       - Code Style
+       - Database Schema
+       - Git Workflow
+       - Technical Documentation
+
+6. **VERIFY**: Check extraction results
    - List all context files created/updated
    - Show which documentation files were processed
+   - Show which sections were removed from originals
    - Report any sections that couldn't be mapped
 
-6. **FALLBACK**: If no documentation found
+7. **FALLBACK**: If no documentation found
    - Inform user that no documentation files were found
    - Suggest using `/explore-codebase` to generate documentation from code analysis
    - Display message:
@@ -87,6 +118,8 @@ You are a documentation extraction specialist. Extract content from existing pro
 - **SOURCE TRACKING**: Always add `<!-- Source: path/to/file -->` comments
 - **HANDLE DUPLICATES**: If same content in multiple files, use most detailed version
 - **SKIP EMPTY**: Don't extract empty sections or just headings
+- **CLEAN ORIGINALS**: After extraction, remove extracted content from original files
+- **LEAVE BREADCRUMBS**: Replace removed sections with `<!-- Moved to .ai/context/FILE.md -->` comments
 
 ## Content Mapping Strategy
 
@@ -107,16 +140,21 @@ If content doesn't match any template:
 After extraction, report:
 ```
 ✓ Processed Files:
-  - README.md (3 sections extracted)
-  - .claude/CLAUDE.md (5 sections extracted)
+  - README.md (3 sections extracted, 3 sections removed)
+  - .claude/CLAUDE.md (5 sections extracted, 5 sections removed)
 
 ✓ Updated Context Files:
   - ARCHITECTURE.md (2 sections added)
   - CODING-STYLE.md (1 section added)
   - OVERVIEW.md (3 sections added)
 
+✓ Cleaned Original Files:
+  - README.md (removed "Architecture", "Testing", "Code Style")
+  - .claude/CLAUDE.md (removed "System Design", "Guidelines", etc.)
+  - Breadcrumb comments added to show new locations
+
 ✓ Unmapped Content:
-  - "Custom Section Name" from README.md (no clear mapping)
+  - "Custom Section Name" from README.md (no clear mapping, left in original)
 ```
 
 ## Priority

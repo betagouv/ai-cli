@@ -101,7 +101,7 @@ curl -fsSL https://raw.githubusercontent.com/betagouv/ai-cli/main/install.sh | b
 If you already have documentation scattered across `README.md`, `CLAUDE.md`, or `AGENTS.md` files:
 
 ```bash
-/init
+/ai-cli-init
 ```
 
 This command:
@@ -109,6 +109,9 @@ This command:
 - Extracts relevant sections
 - Organizes them into `.ai/context/` files
 - **Preserves original text exactly** (no AI rewriting)
+- **Removes extracted content** from original files to avoid duplicates
+- Leaves breadcrumb comments showing where content moved
+- **Keeps human-facing sections** in README.md (Installation, Usage, etc.)
 - **If no documentation found**: Suggests using `/explore-codebase` to generate from code
 
 ### 3. Commit Your Configuration
@@ -157,7 +160,7 @@ bash templates/ides/claude/init.sh
 │       └── CODE-STYLE.md
 │
 ├── commands/                     # Custom slash commands
-│   └── init.md                   # /init command
+│   └── ai-cli-init.md            # /ai-cli-init command
 │
 ├── agents/                       # Specialized agents
 │   └── .gitkeep
@@ -170,7 +173,7 @@ bash templates/ides/claude/init.sh
 
 Once installed, you have access to custom slash commands in Claude Code:
 
-### `/init`
+### `/ai-cli-init`
 
 **Purpose**: Initialize `.ai/context/` files from existing documentation
 
@@ -180,12 +183,15 @@ Once installed, you have access to custom slash commands in Claude Code:
 3. Maps them to appropriate context files (e.g., "Coding Guidelines" → `CODING-STYLE.md`)
 4. **Preserves original text exactly** - no AI rewriting or improvements
 5. Adds source comments to track where content came from
-6. **If no documentation found**: Suggests using `/explore-codebase` to generate from code analysis
+6. **Removes extracted sections** from original files to avoid duplicates
+7. Leaves breadcrumb comments (e.g., `<!-- Moved to .ai/context/ARCHITECTURE.md -->`)
+8. **Keeps human-facing sections** in README.md (Installation, Usage, License, etc.)
+9. **If no documentation found**: Suggests using `/explore-codebase` to generate from code analysis
 
 **Usage**:
 ```bash
 # In Claude Code
-/init
+/ai-cli-init
 
 # If no documentation exists, follow up with:
 /explore-codebase
@@ -194,13 +200,18 @@ Once installed, you have access to custom slash commands in Claude Code:
 **Example output**:
 ```
 ✓ Processed Files:
-  - README.md (3 sections extracted)
-  - .claude/CLAUDE.md (5 sections extracted)
+  - README.md (3 sections extracted, 3 sections removed)
+  - .claude/CLAUDE.md (5 sections extracted, 5 sections removed)
 
 ✓ Updated Context Files:
   - ARCHITECTURE.md (2 sections added)
   - CODING-STYLE.md (1 section added)
   - OVERVIEW.md (3 sections added)
+
+✓ Cleaned Original Files:
+  - README.md (removed "Architecture", "Testing", "Code Style")
+  - .claude/CLAUDE.md (removed "System Design", "Guidelines", etc.)
+  - Breadcrumb comments added to show new locations
 
 # Or if no documentation:
 ⚠️ No documentation files found.
