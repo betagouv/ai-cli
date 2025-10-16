@@ -111,7 +111,7 @@ This command:
 - **Preserves original text exactly** (no AI rewriting)
 - **Removes extracted content** from original files to avoid duplicates
 - Leaves breadcrumb comments showing where content moved
-- **Renames CLAUDE.md → AGENTS.md** for consistency
+- **Renames CLAUDE.md → AGENTS.md** (or merges if AGENTS.md exists)
 - **Keeps human-facing sections** in README.md (Installation, Usage, etc.)
 - **If no documentation found**: Suggests using `/explore-codebase` to generate from code
 
@@ -186,7 +186,7 @@ Once installed, you have access to custom slash commands in Claude Code:
 5. Adds source comments to track where content came from
 6. **Removes extracted sections** from original files to avoid duplicates
 7. Leaves breadcrumb comments (e.g., `<!-- Moved to .ai/context/ARCHITECTURE.md -->`)
-8. **Renames CLAUDE.md → AGENTS.md** for naming consistency
+8. **Renames CLAUDE.md → AGENTS.md** (merges with existing AGENTS.md if present, keeping AGENTS.md content first)
 9. **Keeps human-facing sections** in README.md (Installation, Usage, License, etc.)
 10. **If no documentation found**: Suggests using `/explore-codebase` to generate from code analysis
 
@@ -215,9 +215,10 @@ Once installed, you have access to custom slash commands in Claude Code:
   - CLAUDE.md (removed "System Design", "Guidelines", etc.)
   - Breadcrumb comments added to show new locations
 
-✓ Renamed Files:
-  - CLAUDE.md → AGENTS.md
-  - modules/auth/CLAUDE.md → modules/auth/AGENTS.md
+✓ Renamed/Merged Files:
+  - CLAUDE.md → AGENTS.md (renamed)
+  - modules/auth/CLAUDE.md + AGENTS.md → AGENTS.md (merged)
+  - modules/api/CLAUDE.md → AGENTS.md (renamed)
 
 # Or if no documentation:
 ⚠️ No documentation files found.

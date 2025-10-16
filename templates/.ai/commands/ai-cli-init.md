@@ -110,12 +110,21 @@ You are a documentation extraction specialist. Extract content from existing pro
 
 6. **RENAME CLAUDE.md FILES**: Update to new naming convention
    - Find all `CLAUDE.md` files in the project (excluding `.ai/` folder)
-   - Rename them to `AGENTS.md` for consistency with `.ai/AGENTS.md`
-   - Example:
-     - `CLAUDE.md` → `AGENTS.md`
-     - `modules/auth/CLAUDE.md` → `modules/auth/AGENTS.md`
+   - For each `CLAUDE.md` file:
+     - **CHECK**: Does `AGENTS.md` exist in the same directory?
+     - **IF AGENTS.md EXISTS**: Merge the files
+       - Read existing `AGENTS.md` content
+       - Read `CLAUDE.md` content
+       - Create new `AGENTS.md` with:
+         1. Original `AGENTS.md` content FIRST
+         2. A separator line: `\n---\n\n<!-- Content merged from CLAUDE.md -->\n`
+         3. `CLAUDE.md` content SECOND
+       - Delete `CLAUDE.md` after successful merge
+     - **IF AGENTS.md DOES NOT EXIST**: Simple rename
+       - `CLAUDE.md` → `AGENTS.md`
    - **REASONING**: Maintain consistent naming across the project
-   - **SKIP**: Don't rename if file is empty or contains only breadcrumb comments
+   - **SKIP**: Don't process if CLAUDE.md is empty or contains only breadcrumb comments
+   - **PRESERVE TEXT**: Do NOT modify content during merge, just combine
 
 7. **VERIFY**: Check extraction results
    - List all context files created/updated
@@ -149,6 +158,8 @@ You are a documentation extraction specialist. Extract content from existing pro
 - **SKIP EMPTY**: Don't extract empty sections or just headings
 - **CLEAN ORIGINALS**: After extraction, remove extracted content from original files
 - **LEAVE BREADCRUMBS**: Replace removed sections with `<!-- Moved to .ai/context/FILE.md -->` comments
+- **MERGE WHEN NEEDED**: If both CLAUDE.md and AGENTS.md exist, merge them (AGENTS.md first, then CLAUDE.md)
+- **NO TEXT MODIFICATION DURING MERGE**: Just concatenate the files with a separator
 
 ## Content Mapping Strategy
 
@@ -182,9 +193,10 @@ After extraction, report:
   - CLAUDE.md (removed "System Design", "Guidelines", etc.)
   - Breadcrumb comments added to show new locations
 
-✓ Renamed Files:
-  - CLAUDE.md → AGENTS.md
-  - modules/auth/CLAUDE.md → modules/auth/AGENTS.md
+✓ Renamed/Merged Files:
+  - CLAUDE.md → AGENTS.md (renamed)
+  - modules/auth/CLAUDE.md + AGENTS.md → AGENTS.md (merged)
+  - modules/api/CLAUDE.md → AGENTS.md (renamed)
 
 ✓ Unmapped Content:
   - "Custom Section Name" from README.md (no clear mapping, left in original)
