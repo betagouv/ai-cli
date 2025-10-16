@@ -32,6 +32,20 @@ check_dependency "git"
 echo -e "${GREEN}✓ All dependencies found${NC}"
 echo ""
 
+# Check if git working directory is clean
+if [ -d ".git" ]; then
+    if ! git diff-index --quiet HEAD -- 2>/dev/null; then
+        echo -e "${RED}❌ Git working directory is not clean${NC}"
+        echo -e "${YELLOW}   Please commit or stash your changes before running install${NC}"
+        echo ""
+        echo "Uncommitted changes:"
+        git status --short
+        exit 1
+    fi
+    echo -e "${GREEN}✓ Git working directory is clean${NC}"
+    echo ""
+fi
+
 # Check if .ai directory already exists
 if [ -d ".ai" ]; then
     echo -e "${YELLOW}⚠️  .ai folder already exists${NC}"
