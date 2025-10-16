@@ -181,16 +181,17 @@ Once installed, you have access to custom slash commands in Claude Code:
 **Purpose**: Initialize `.ai/context/` files from existing documentation
 
 **What it does**:
-1. Scans your codebase for `README.md`, `CLAUDE.md`, `AGENTS.md` (excluding `.ai/` folder)
-2. Identifies sections like "Architecture", "Testing", "Coding Guidelines", etc.
-3. Maps them to appropriate context files (e.g., "Coding Guidelines" → `CODING-STYLE.md`)
-4. **Preserves original text exactly** - no AI rewriting or improvements
-5. Adds source comments to track where content came from
-6. **Removes extracted sections** from original files to avoid duplicates
-7. Leaves breadcrumb comments (e.g., `<!-- Moved to .ai/context/ARCHITECTURE.md -->`)
-8. **Renames CLAUDE.md → AGENTS.md** (merges with existing AGENTS.md if present, keeping AGENTS.md content first)
-9. **Keeps human-facing sections** in README.md (Installation, Usage, License, etc.)
-10. **If no documentation found**: Suggests using `/explore-codebase` to generate from code analysis
+1. Scans your codebase for `README.md`, `CLAUDE.md`, `AGENTS.md`, and `*.mdc` files
+2. Includes existing documentation in `.ai/context/` for reorganization
+3. Identifies sections like "Architecture", "Testing", "Coding Guidelines", etc.
+4. Maps them to appropriate context files (e.g., "Coding Guidelines" → `CODING-STYLE.md`)
+5. **Preserves original text exactly** - no AI rewriting or improvements
+6. Adds source comments to track where content came from
+7. **Removes extracted sections** from original files to avoid duplicates
+8. Leaves breadcrumb comments (e.g., `<!-- Moved to .ai/context/ARCHITECTURE.md -->`)
+9. **Renames CLAUDE.md → AGENTS.md** (merges with existing AGENTS.md if present, keeping AGENTS.md content first)
+10. **Keeps human-facing sections** in README.md (Installation, Usage, License, etc.)
+11. **If no documentation found**: Suggests using `/explore-codebase` to generate from code analysis
 
 **Usage**:
 ```bash

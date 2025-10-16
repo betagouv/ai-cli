@@ -20,8 +20,10 @@ You are a documentation extraction specialist. Extract content from existing pro
 
 1. **DISCOVER**: Find all documentation files
    - Use Glob to find: `**/README.md`, `**/CLAUDE.md`, `**/AGENTS.md`
-   - **EXCLUDE**: Skip files in `.ai/` folder
+   - **ALSO FIND**: `**/*.mdc` files (Markdown Context files)
+   - **INCLUDE**: Scan `.ai/context/**/*.md` and `.ai/context/**/*.mdc` for existing documentation
    - **EXCLUDE**: Skip files in `node_modules/`, `.git/`, `dist/`, `build/`
+   - **EXCLUDE**: Skip `.ai/context/**/*.template.md` files (those are templates, not documentation)
    - Read each discovered file
    - **IF NO DOCUMENTATION FOUND**: Skip to step 6 (Fallback)
 
@@ -34,6 +36,8 @@ You are a documentation extraction specialist. Extract content from existing pro
 
 3. **EXTRACT CONTENT**: Map documentation to context files
    - Analyze each documentation file for sections
+   - **FOR .ai/context FILES**: Treat as valid documentation sources, extract and organize their content
+   - **FOR .mdc FILES**: Process them as markdown files (same rules apply)
    - Match sections to appropriate context files:
 
      **ARCHITECTURE.md**:
@@ -160,6 +164,8 @@ You are a documentation extraction specialist. Extract content from existing pro
 - **LEAVE BREADCRUMBS**: Replace removed sections with `<!-- Moved to .ai/context/FILE.md -->` comments
 - **MERGE WHEN NEEDED**: If both CLAUDE.md and AGENTS.md exist, merge them (AGENTS.md first, then CLAUDE.md)
 - **NO TEXT MODIFICATION DURING MERGE**: Just concatenate the files with a separator
+- **PROCESS .mdc FILES**: Treat `.mdc` files as markdown files (same extraction rules)
+- **INCLUDE .ai/context**: Process existing files in `.ai/context/` to reorganize their content
 
 ## Content Mapping Strategy
 
