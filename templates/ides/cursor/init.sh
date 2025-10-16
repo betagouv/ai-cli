@@ -15,30 +15,42 @@ set -e
 #
 # ==============================================================================
 
-echo "🔧 Setting up Cursor configuration..."
-
 # Colors
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
-# Check if .ai exists
-if [ ! -d ".ai" ]; then
-    echo -e "${YELLOW}⚠️  .ai folder not found. Run this from project root.${NC}"
-    exit 1
-fi
+# Global variables
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+BACKUP_DIR=".cursor.backup_${TIMESTAMP}"
 
-# Backup existing .cursor folder if it exists
-if [ -d ".cursor" ]; then
-    TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-    BACKUP_DIR=".cursor.backup_${TIMESTAMP}"
+# ==============================================================================
+# Functions
+# ==============================================================================
+
+check_prerequisites() {
+    if [ ! -d ".ai" ]; then
+        echo -e "${YELLOW}⚠️  .ai folder not found. Run this from project root.${NC}"
+        exit 1
+    fi
+}
+
+backup_existing_config() {
+    if [ ! -d ".cursor" ]; then
+        return 0
+    fi
 
     echo -e "${YELLOW}⚠️  Existing .cursor folder found. Backing up...${NC}"
     cp -r .cursor "$BACKUP_DIR"
     echo -e "${GREEN}✓${NC} Backup created at $BACKUP_DIR"
+}
 
-    # Copy any custom files from .cursor/rules to .ai (preserve user customizations)
+preserve_user_customizations() {
+    if [ ! -d ".cursor" ]; then
+        return 0
+    fi
+
     echo "📦 Preserving custom files..."
 
     # Copy custom rules (non-symlink .mdc files)
@@ -46,45 +58,85 @@ if [ -d ".cursor" ]; then
         find .cursor/rules -type f ! -type l -name "*.mdc" 2>/dev/null | while read file; do
             filename=$(basename "$file")
             if [ "$filename" != "main.mdc" ]; then
-                # Copy to .ai/commands/ as .md files
-                cp "$file" ".ai/commands/${filename%.mdc}.md"
-                echo -e "${GREEN}✓${NC} Copied custom rule: $filename"
+                # Copy to .ai/context/ preserving .mdc extension
+                cp "$file" ".ai/context/${filename}"
+                echo -e "${GREEN}✓${NC} Copied custom rule: $filename → .ai/context/"
+            fi
+        done
+
+        # Also check for nested directories with .md files
+        find .cursor/rules -type f ! -type l -name "*.md" 2>/dev/null | while read file; do
+            relative_path="${file#.cursor/rules/}"
+            # Skip if it's a symlink
+            if [ ! -L "$file" ]; then
+                target_dir=".ai/context/$(dirname "$relative_path")"
+                mkdir -p "$target_dir"
+                cp "$file" "$target_dir/"
+                echo -e "${GREEN}✓${NC} Copied custom file: $relative_path → .ai/context/"
             fi
         done
     fi
+}
 
-    # Remove old .cursor folder
+cleanup_old_config() {
+    if [ ! -d ".cursor" ]; then
+        return 0
+    fi
+
     rm -rf .cursor
     echo -e "${GREEN}✓${NC} Old .cursor folder removed"
-fi
+}
 
-# Create .cursor directory structure
-mkdir -p .cursor/rules
+create_directory_structure() {
+    mkdir -p .cursor/rules
+}
 
-echo "📋 Creating Cursor configuration..."
+create_symlinks() {
+    echo "📋 Creating Cursor configuration..."
 
-# Symlink main.mdc (main config)
-if [ -f ".ai/AGENTS.md" ]; then
-    ln -sf ../../.ai/AGENTS.md .cursor/rules/main.mdc
-    echo -e "${GREEN}✓${NC} Linked .cursor/rules/main.mdc → .ai/AGENTS.md"
-fi
+    # Symlink main.mdc (main config)
+    if [ -f ".ai/AGENTS.md" ]; then
+        ln -sf ../../.ai/AGENTS.md .cursor/rules/main.mdc
+        echo -e "${GREEN}✓${NC} Linked .cursor/rules/main.mdc → .ai/AGENTS.md"
+    fi
 
-# Symlink context folder
-if [ -d ".ai/context" ]; then
-    ln -sf ../../.ai/context .cursor/rules/context
-    echo -e "${GREEN}✓${NC} Linked .cursor/rules/context/ → .ai/context/"
-    echo -e "       ${BLUE}→ Reference with @.cursor/rules/context/architecture.md${NC}"
-fi
+    # Symlink context folder
+    if [ -d ".ai/context" ]; then
+        ln -sf ../../.ai/context .cursor/rules/context
+        echo -e "${GREEN}✓${NC} Linked .cursor/rules/context/ → .ai/context/"
+        echo -e "       ${BLUE}→ Reference with @.cursor/rules/context/architecture.md${NC}"
+    fi
+}
 
-echo ""
-echo -e "${BLUE}✅ Cursor setup complete!${NC}"
-echo ""
-echo "Structure created:"
-echo "  .cursor/rules/main.mdc           → .ai/AGENTS.md"
-echo "  .cursor/rules/context/           → .ai/context/"
-echo ""
-echo "✨ Dynamic updates: Changes to .ai/ are immediately available!"
-echo ""
-echo "In Cursor, reference with:"
-echo "  @.cursor/rules/main.mdc"
-echo "  @.cursor/rules/context/architecture.md"
+print_summary() {
+    echo ""
+    echo -e "${BLUE}✅ Cursor setup complete!${NC}"
+    echo ""
+    echo "Structure created:"
+    echo "  .cursor/rules/main.mdc           → .ai/AGENTS.md"
+    echo "  .cursor/rules/context/           → .ai/context/"
+    echo ""
+    echo "✨ Dynamic updates: Changes to .ai/ are immediately available!"
+    echo ""
+    echo "In Cursor, reference with:"
+    echo "  @.cursor/rules/main.mdc"
+    echo "  @.cursor/rules/context/architecture.md"
+}
+
+# ==============================================================================
+# Main execution
+# ==============================================================================
+
+main() {
+    echo "🔧 Setting up Cursor configuration..."
+
+    check_prerequisites
+    backup_existing_config
+    preserve_user_customizations
+    cleanup_old_config
+    create_directory_structure
+    create_symlinks
+    print_summary
+}
+
+main
