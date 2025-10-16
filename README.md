@@ -1,5 +1,7 @@
 # AI CLI - Single Source of Truth for AI Assistant Configurations
 
+> **🚧 Work in Progress** - This project is under active development. Feel free to join the discussion in our [beta Mattermost channel](https://mattermost.incubateur.net/betagouv/channels/domaine-dev-ai-workflows)!
+
 > Unified AI configuration management across IDEs - because your team shouldn't maintain duplicate configs
 
 ## 🎯 The Problem
