@@ -133,6 +133,18 @@ create_symlinks() {
         ln -sf ../../.ai/context .cursor/rules/context
         echo -e "${GREEN}✓${NC} Linked .cursor/rules/context/ → .ai/context/"
     fi
+
+    # Symlink commands folder
+    if [ -d ".ai/commands" ]; then
+        ln -sf ../../.ai/commands .cursor/rules/commands
+        echo -e "${GREEN}✓${NC} Linked .cursor/rules/commands/ → .ai/commands/"
+    fi
+
+    # Symlink agents folder
+    if [ -d ".ai/agents" ]; then
+        ln -sf ../../.ai/agents .cursor/rules/agents
+        echo -e "${GREEN}✓${NC} Linked .cursor/rules/agents/ → .ai/agents/"
+    fi
 }
 
 print_summary() {
@@ -142,6 +154,8 @@ print_summary() {
     echo "Structure created:"
     echo "  .cursor/rules/main.mdc           → .ai/AGENTS.md"
     echo "  .cursor/rules/context/           → .ai/context/"
+    echo "  .cursor/rules/commands/          → .ai/commands/"
+    echo "  .cursor/rules/agents/            → .ai/agents/"
     echo ""
     echo "✨ Dynamic updates: Changes to .ai/ are immediately available!"
     echo ""
