@@ -1,0 +1,5 @@
+# Claude Code - Ignore entire folder (dynamically generated symlinks)
+.claude/commands
+.claude/agents
+.claude/output-styles
+.claude/settings.json
