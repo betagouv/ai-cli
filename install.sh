@@ -116,7 +116,7 @@ if [ -d "$CONTEXT_DIR" ]; then
             read -p "Include ${context_display} context? (Y/n): " -n 1 -r RESPONSE
             echo
             if [[ ! $RESPONSE =~ ^[Nn]$ ]]; then
-                SELECTED_CONTEXTS+=("$context_name")
+                SELECTED_CONTEXTS=("${SELECTED_CONTEXTS[@]}" "$context_name")
             fi
         fi
     done
