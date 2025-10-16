@@ -111,6 +111,7 @@ This command:
 - **Preserves original text exactly** (no AI rewriting)
 - **Removes extracted content** from original files to avoid duplicates
 - Leaves breadcrumb comments showing where content moved
+- **Renames CLAUDE.md → AGENTS.md** for consistency
 - **Keeps human-facing sections** in README.md (Installation, Usage, etc.)
 - **If no documentation found**: Suggests using `/explore-codebase` to generate from code
 
@@ -185,8 +186,9 @@ Once installed, you have access to custom slash commands in Claude Code:
 5. Adds source comments to track where content came from
 6. **Removes extracted sections** from original files to avoid duplicates
 7. Leaves breadcrumb comments (e.g., `<!-- Moved to .ai/context/ARCHITECTURE.md -->`)
-8. **Keeps human-facing sections** in README.md (Installation, Usage, License, etc.)
-9. **If no documentation found**: Suggests using `/explore-codebase` to generate from code analysis
+8. **Renames CLAUDE.md → AGENTS.md** for naming consistency
+9. **Keeps human-facing sections** in README.md (Installation, Usage, License, etc.)
+10. **If no documentation found**: Suggests using `/explore-codebase` to generate from code analysis
 
 **Usage**:
 ```bash
@@ -201,7 +203,7 @@ Once installed, you have access to custom slash commands in Claude Code:
 ```
 ✓ Processed Files:
   - README.md (3 sections extracted, 3 sections removed)
-  - .claude/CLAUDE.md (5 sections extracted, 5 sections removed)
+  - CLAUDE.md (5 sections extracted, 5 sections removed)
 
 ✓ Updated Context Files:
   - ARCHITECTURE.md (2 sections added)
@@ -210,8 +212,12 @@ Once installed, you have access to custom slash commands in Claude Code:
 
 ✓ Cleaned Original Files:
   - README.md (removed "Architecture", "Testing", "Code Style")
-  - .claude/CLAUDE.md (removed "System Design", "Guidelines", etc.)
+  - CLAUDE.md (removed "System Design", "Guidelines", etc.)
   - Breadcrumb comments added to show new locations
+
+✓ Renamed Files:
+  - CLAUDE.md → AGENTS.md
+  - modules/auth/CLAUDE.md → modules/auth/AGENTS.md
 
 # Or if no documentation:
 ⚠️ No documentation files found.
