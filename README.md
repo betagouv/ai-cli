@@ -329,6 +329,12 @@ See **[templates/ides/CONTRIBUTE.md](templates/ides/CONTRIBUTE.md)** for a step-
 4. Create symlinks or generate config files
 5. Test thoroughly
 
+## 📚 Getting Started with AI Development
+
+To get the most out of this project and AI-assisted development in general, we recommend getting proper training in AI development practices.
+
+**We recommend [Melvynx's AI Blueprint training](https://aiblueprint.dev/?ref=aJmHMnVnfaK)** to understand how to best work with AI assistants and structure your projects for optimal AI collaboration.
+
 ## 🙏 Acknowledgments
 
 This project was heavily inspired by [@Melvynx](https://github.com/Melvynx)'s excellent [aiblueprint](https://github.com/Melvynx/aiblueprint). Thank you for paving the way!
