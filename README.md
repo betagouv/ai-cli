@@ -1,390 +1,317 @@
-# betagouv-ai-cli
+# AI CLI - Single Source of Truth for AI Assistant Configurations
 
-> CLI to manage multi-tool AI configuration for beta.gouv.fr projects
+> Unified AI configuration management across IDEs - because your team shouldn't maintain duplicate configs
 
-## 🎯 Why this CLI?
+## 🎯 The Problem
 
-Beta.gouv.fr teams use different AI assistance tools (Claude Code, Cursor, GitHub Copilot). Each tool has its own configuration format, creating duplication and synchronization problems.
+Modern development teams face a configuration nightmare when using AI assistants:
 
-This CLI provides a **unified architecture** where:
-- ✅ A single `.ai/` folder contains all directives
-- ✅ Configurations are modular and maintainable
-- ✅ All AI tools use the same foundation
-- ✅ The team stays synchronized via git
+**Different IDEs, Different Configs** 🤯
+- Your team uses Claude Code, Cursor, Windsurf, or other AI tools
+- Each tool requires its own configuration format
+- You end up duplicating commands, agents, and guidelines across tools
+- Changes need to be manually synced everywhere
+- No single source of truth = configuration drift
+
+**Existing Solutions Fall Short:**
+- **[github/spec-kit](https://github.com/github/spec-kit)**: Copies commands to each IDE, creating duplication
+- **[Melvynx/aiblueprint](https://github.com/Melvynx/aiblueprint)**: Great inspiration (thank you [@Melvynx](https://github.com/Melvynx)!), but still requires per-IDE management
+
+## ✨ The Solution
+
+**AI CLI provides a single `.ai/` folder as your source of truth**, automatically syncing to any IDE your team uses.
+
+### Key Benefits
+
+✅ **Write once, use everywhere** - One configuration, all IDEs
+✅ **Git-friendly** - Commit only `.ai/`, IDE configs are generated
+✅ **Team synchronization** - Everyone gets the same guidelines
+✅ **Dynamic updates** - Add a file to `.ai/`, it appears in your IDE instantly
+✅ **Backup protection** - Existing configurations are preserved in `.tmp/`
+✅ **Works everywhere** - Any bash system (macOS, Linux, WSL)
 
 ## 📦 Installation
 
+### One-Command Setup
+
 ```bash
-# One-command installation (no dependencies required)
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/betagouv/ai-cli/main/install.sh)"
+curl -fsSL https://raw.githubusercontent.com/betagouv/ai-cli/main/install.sh | bash
+```
+
+**What happens during installation:**
+
+1. **Discovers your project**
+   - Prompts for project name, description, and framework
+   - Asks which contexts you need (Node, TypeScript, Go, Ruby, Vue)
+
+2. **Creates `.ai/` structure**
+   - Sets up `AGENTS.md` (main configuration)
+   - Creates `context/`, `commands/`, `agents/`, `avatars/` folders
+   - Copies selected context templates
+
+3. **Asks which IDEs you use**
+   - Claude Code
+   - Cursor
+   - (More coming soon - contributions welcome!)
+
+4. **Runs IDE setup**
+   - Backs up any existing configuration to `.tmp/`
+   - Preserves your custom files (copies them to `.ai/`)
+   - Creates symlinks or generated files for your IDE
+
+5. **Updates `.gitignore`**
+   - Ignores generated IDE folders
+   - Ignores `.tmp/` backup folder
+
+### Result
+
+```
+your-project/
+├── .ai/                          # ✅ Commit this (source of truth)
+│   ├── AGENTS.md                 # Main config file
+│   ├── context/                  # Project knowledge
+│   ├── commands/                 # Custom slash commands
+│   ├── agents/                   # Specialized agents
+│   └── avatars/                  # AI behavior profiles
+│
+├── .claude/                      # ❌ Generated (gitignored)
+│   ├── CLAUDE.md → .ai/AGENTS.md
+│   ├── commands/ → .ai/commands/
+│   └── ...
+│
+├── .cursor/                      # ❌ Generated (gitignored)
+│   └── rules/
+│       ├── main.mdc → .ai/AGENTS.md
+│       └── context/ → .ai/context/
+│
+└── .tmp/                         # ❌ Your old configs (safe backup)
+    └── claude.backup_20251016_143022/
 ```
 
 ## 🚀 Quick Start
 
-### New project
+### 1. Install
 
 ```bash
-# In your project
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/betagouv/ai-cli/main/install.sh)"
-
-# Answer the questions:
-# - Project name
-# - Description
-# - Primary framework/language
-# - AI tools to install (Claude Code, Cursor, Windsurf, Copilot)
-
-# The .ai/ structure is automatically created and synchronized
-
-# Commit
-git add .ai/
-git commit -m "feat: add AI configuration"
+curl -fsSL https://raw.githubusercontent.com/betagouv/ai-cli/main/install.sh | bash
 ```
 
-### Existing project with AI configs
+### 2. Extract Existing Documentation
+
+If you already have documentation scattered across `README.md`, `CLAUDE.md`, or `AGENTS.md` files:
 
 ```bash
-# Manually migrate your existing files to .ai/
-# then synchronize
-bash templates/ides/<tool>/init.sh
+/context-extract
+```
 
-# Verify migrated files
-ls -la .ai/
+This command:
+- Finds all documentation in your codebase
+- Extracts relevant sections
+- Organizes them into `.ai/context/` files
+- **Preserves original text exactly** (no AI rewriting)
+
+### 3. Commit Your Configuration
+
+```bash
+git add .ai/
+git commit -m "feat: add AI configuration"
+git push
+```
+
+### 4. Team Members Pull and Sync
+
+```bash
+git pull
+# IDE configs update automatically via symlinks!
+# Or re-run init if needed:
+bash templates/ides/claude/init.sh
 ```
 
 ## 📁 Architecture
 
 ```
-project/
-├── .ai/                          # 🎯 SOURCE OF TRUTH (commit this)
-│   ├── AGENTS.md                 # Main config file (references other files)
+.ai/                              # Your single source of truth
+├── AGENTS.md                     # Main configuration file
+│
+├── context/                      # Project knowledge base
+│   ├── ARCHITECTURE.md           # System design, tech stack
+│   ├── OVERVIEW.md               # Project description, features
+│   ├── TESTING.md                # Testing strategy
+│   ├── DATABASE.md               # Schema, queries, migrations
+│   ├── GIT-WORKFLOW.md           # Branching, commits, PRs
 │   │
-│   ├── context/                  # 📚 Project knowledge base
-│   │   ├── overview.md           # Project overview, tech stack
-│   │   ├── architecture.md       # Architecture decisions
-│   │   ├── testing.md            # Testing guidelines
-│   │   ├── security.md           # Security best practices
-│   │   ├── workflows.md          # Development workflows
-│   │   └── standards/
-│   │       └── common.md         # Standards common to all languages
+│   ├── node/                     # Node.js specific
+│   │   ├── CODE-STYLE.md         # JavaScript/Node standards
+│   │   ├── DEPENDENCIES.md       # npm, package management
+│   │   ├── PERFORMANCE.md        # Optimization patterns
+│   │   └── TESTING.md            # Node test frameworks
 │   │
-│   ├── commands/                 # Common commands (all IDEs)
-│   ├── agents/                   # Common agents
-│   └── avatars/                  # AI behavior profiles
+│   ├── typescript/               # TypeScript specific
+│   │   └── CODE-STYLE.md
+│   │
+│   ├── go/                       # Go specific
+│   │   └── CODE-STYLE.md
+│   │
+│   └── vue/                      # Vue specific
+│       └── CODE-STYLE.md
 │
-├── languages/                    # 🗂️ Language-specific configs (commit this)
-│   ├── typescript/
-│   │   ├── AGENTS.md             # TypeScript-specific guidelines
-│   │   ├── standards.md          # TypeScript standards
-│   │   ├── commands/             # TS-specific commands
-│   │   └── init.sh               # Setup script
-│   ├── python/
-│   │   ├── AGENTS.md
-│   │   ├── standards.md
-│   │   ├── commands/
-│   │   └── init.sh
-│   └── go/
-│       ├── AGENTS.md
-│       └── init.sh
+├── commands/                     # Custom slash commands
+│   └── context-extract.md        # /context-extract command
 │
-├── templates/                    # 🔧 IDE setup scripts (downloaded during install)
-│   └── ides/
-│       ├── claude/init.sh        # Setup Claude Code
-│       ├── cursor/init.sh        # Setup Cursor
-│       ├── windsurf/init.sh      # Setup Windsurf
-│       └── copilot/init.sh       # Setup GitHub Copilot
+├── agents/                       # Specialized agents
+│   └── .gitkeep
 │
-# ⬇️ GENERATED FILES (gitignored, created by init.sh):
-│
-├── .claude/                      # ← Generated by claude/init.sh
-│   ├── CLAUDE.md                 # Symlink to .ai/AGENTS.md
-│   ├── commands/                 # Symlink to .ai/commands/
-│   ├── agents/                   # Symlink to .ai/agents/
-│   └── avatars/                  # Symlink to .ai/avatars/
-│
-├── .cursor/
-│   └── rules/
-│       ├── main.mdc              # ← Symlink to .ai/AGENTS.md
-│       ├── context/              # ← Symlink to .ai/context/
-│       └── languages/            # ← Symlink to languages/
-│
-├── .windsurf/
-│   └── rules/
-│       ├── main.md               # ← Symlink to .ai/AGENTS.md
-│       ├── context/              # ← Symlink to .ai/context/
-│       └── languages/            # ← Symlink to languages/
-│
-└── .github/
-    ├── copilot-instructions.md   # ← Symlink to .ai/AGENTS.md
-    └── copilot/
-        ├── context/              # ← Symlink to .ai/context/
-        └── languages/            # ← Symlink to languages/
+└── avatars/                      # AI behavior profiles
+    └── .gitkeep
 ```
 
-### Principle
+## 🛠️ Available Commands
 
-1. **Edit** files in `.ai/` (source of truth)
-2. **Run** `bash templates/ides/<tool>/init.sh` to regenerate a tool's config
-3. **Commit** only the `.ai/` folder
-4. **Your AI tool** automatically loads the config (via symlinks or generated files)
+Once installed, you have access to custom slash commands in Claude Code:
 
-## 🛠️ init.sh Scripts per IDE
+### `/context-extract`
 
-Each IDE has its own initialization script in `templates/ides/<tool>/init.sh`:
+**Purpose**: Extract and organize existing documentation into `.ai/context/` files
 
-### Claude Code
+**What it does**:
+1. Scans your codebase for `README.md`, `CLAUDE.md`, `AGENTS.md` (excluding `.ai/` folder)
+2. Identifies sections like "Architecture", "Testing", "Coding Guidelines", etc.
+3. Maps them to appropriate context files (e.g., "Coding Guidelines" → `CODING-STYLE.md`)
+4. **Preserves original text exactly** - no AI rewriting or improvements
+5. Adds source comments to track where content came from
+
+**Usage**:
+```bash
+# In Claude Code
+/context-extract
+```
+
+**Example output**:
+```
+✓ Processed Files:
+  - README.md (3 sections extracted)
+  - .claude/CLAUDE.md (5 sections extracted)
+
+✓ Updated Context Files:
+  - ARCHITECTURE.md (2 sections added)
+  - CODING-STYLE.md (1 section added)
+  - OVERVIEW.md (3 sections added)
+```
+
+## 🔧 How It Works
+
+### For Claude Code (Symlinks)
 
 ```bash
 bash templates/ides/claude/init.sh
 ```
 
-**What it does:**
-- Symlink `.claude/CLAUDE.md` → `.ai/AGENTS.md`
-- Symlink `.claude/commands/` → `.ai/commands/` (entire folder)
-- Symlink `.claude/agents/` → `.ai/agents/` (entire folder)
-- Symlink `.claude/avatars/` → `.ai/avatars/` (entire folder)
+**Creates symlinks**:
+- `.claude/CLAUDE.md` → `.ai/AGENTS.md`
+- `.claude/commands/` → `.ai/commands/`
+- `.claude/agents/` → `.ai/agents/`
+- `.claude/output-styles/` → `.ai/avatars/`
 
-✅ **Dynamic**: Add a file to `.ai/commands/` and it appears automatically in Claude Code!
+**Why symlinks?**
+- ✅ **Dynamic**: Add a file to `.ai/commands/`, it appears instantly in Claude
+- ✅ **No sync needed**: Changes to `.ai/` are immediately available
+- ✅ **Git-friendly**: Only commit `.ai/`, symlinks are regenerated
 
-### Cursor
+### For Cursor (Symlinks)
 
 ```bash
 bash templates/ides/cursor/init.sh
 ```
 
-**Ce qu'il fait :**
-- Génère `.cursor/rules/main.mdc` en fusionnant :
-  - `.ai/AGENTS.md`
-  - `.ai/context/*.md`
-  - `languages/*/standards.md`
+**Creates symlinks**:
+- `.cursor/rules/main.mdc` → `.ai/AGENTS.md`
+- `.cursor/rules/context/` → `.ai/context/`
 
-### Windsurf
+**Reference in Cursor**:
+- `@.cursor/rules/main.mdc`
+- `@.cursor/rules/context/architecture.md`
+
+## 🔄 Daily Workflow
+
+### Adding a Command
 
 ```bash
-bash templates/ides/windsurf/init.sh
+# 1. Create command file
+cat > .ai/commands/deploy.md << 'EOF'
+---
+description: Deploy application to production
+---
+
+You are a deployment specialist...
+EOF
+
+# 2. Already available in Claude Code!
+# Just use: /deploy
+
+# 3. Commit
+git add .ai/commands/deploy.md
+git commit -m "feat: add deploy command"
 ```
 
-**Ce qu'il fait :**
-- Génère `.windsurfrules` en fusionnant tous les contextes
-
-### GitHub Copilot
+### Updating Guidelines
 
 ```bash
-bash templates/ides/copilot/init.sh
-```
+# 1. Edit source of truth
+vim .ai/context/node/CODE-STYLE.md
 
-**Ce qu'il fait :**
-- Génère `.github/copilot-instructions.md` avec tous les contextes
-
-## 📝 Utilisation au quotidien
-
-### Modifier les directives
-
-```bash
-# 1. Éditer les fichiers sources
-code .ai/context/standards/typescript.md
-
-# 2. Pas besoin de sync si vous utilisez Claude (symlinks)
-# Pour Cursor/Windsurf/Copilot, régénérer :
+# 2. Changes are instantly available (symlinks)
+# For Cursor, re-run if needed:
 bash templates/ides/cursor/init.sh
 
-# 3. Committer uniquement .ai/
-git add .ai/
-git commit -m "docs: update TypeScript standards"
-
-# 4. L'équipe récupère et régénère
-git pull
-bash templates/ides/cursor/init.sh  # Si nécessaire
+# 3. Commit
+git add .ai/context/node/CODE-STYLE.md
+git commit -m "docs: update Node.js code style"
 ```
 
-### Ajouter une commande Claude Code
-
-```bash
-# 1. Créer le fichier
-echo "---
-commandName: deploy
----
-
-Deploy application...
-" > .ai/commands/deploy.md
-
-# 2. Déjà disponible ! (symlink automatique)
-
-# 3. Utiliser
-claude
-/deploy
-```
-
-### Ajouter une commande spécifique TypeScript
-
-```bash
-# 1. Créer dans languages/typescript/commands/
-echo "---
-commandName: ts-build
----
-
-Build TypeScript project...
-" > languages/typescript/commands/build.md
-
-# 2. Accessible via .claude/commands/languages/typescript/commands/build.md
-claude
-/ts-build
-```
-
-### Directives spécifiques à un module
-
-Dans le README.md du module :
-
-```markdown
-# Module Auth
-
-## Vue d'ensemble
-...
-
-## Directives IA
-
-Lors du travail dans ce module :
-- Utiliser JWT pour l'authentification
-- Valider toutes les entrées avec Zod
-- Ne jamais logger de données sensibles
-```
-
-## 🔧 Configuration
-
-### Templates
-
-Le CLI inclut des templates français optimisés pour beta.gouv.fr :
-
-- **overview.md** - Vue d'ensemble du projet
-- **architecture.md** - Décisions d'architecture
-- **coding-standards.md** - Standards de code
-- **testing.md** - Stratégie de test
-- **security.md** - Sécurité (RGPD, best practices)
-- **workflows.md** - Workflows de développement
-
-### Personnalisation
-
-Après `init`, customisez les fichiers dans `.ai/` pour votre projet :
-
-```bash
-# Adapter pour votre stack
-code .ai/overview.md
-
-# Définir vos conventions
-code .ai/coding-standards.md
-
-# Documenter votre architecture
-code .ai/architecture.md
-```
-
-## 🤝 Outils supportés
-
-| Outil | Support | Config générée |
-|-------|---------|----------------|
-| **Claude Code** | ✅ Full | `.claude/CLAUDE.md` + symlinks |
-| **Cursor** | ✅ Full | `.cursor/rules/main.mdc` |
-| **Windsurf** | ✅ Full | `.windsurfrules` |
-| **GitHub Copilot** | ✅ Full | `.github/copilot-instructions.md` |
-| **Continue** | ⚠️ Partiel | Garde config existante |
-| **Cody** | ✅ Via AGENTS.md | `AGENTS.md` racine |
-
-## 💡 Best Practices
-
-### Commit uniquement .ai/
-
-```bash
-# ✅ À committer
-.ai/
-
-# ❌ Généré (gitignored)
-AGENTS.md
-.cursor/
-.claude/
-.github/copilot-instructions.md
-```
-
-### Garder les fichiers courts
-
-- Chaque fichier `.ai/*.md` < 500 lignes
-- Séparer les concerns
-- Lier vers docs externes si besoin
-
-### Synchroniser après pull
+### Pulling Team Changes
 
 ```bash
 git pull
 
-# Claude : Rien à faire (symlinks dynamiques)
-# Cursor/Windsurf/Copilot : Régénérer si contexte modifié
+# Claude: Nothing to do (symlinks update automatically)
+# Cursor: Re-run init if context changed
 bash templates/ides/cursor/init.sh
 ```
 
-### Directives impératives
+## 🎯 IDE Support
 
-```markdown
-# ✅ Bon
-Utilisez TypeScript strict mode
+| IDE | Status | Configuration |
+|-----|--------|---------------|
+| **Claude Code** | ✅ Full | `.claude/` (symlinks) |
+| **Cursor** | ✅ Full | `.cursor/rules/` (symlinks) |
+| **Others** | 🔜 Coming | [Contribute!](templates/ides/CONTRIBUTE.md) |
 
-# ❌ À éviter
-Nous préférons utiliser TypeScript strict mode
-```
+## 🤝 Contributing
 
-Les IA répondent mieux aux instructions directes.
+Want to add support for your favorite IDE?
 
-## 🐛 Troubleshooting
+See **[templates/ides/CONTRIBUTE.md](templates/ides/CONTRIBUTE.md)** for a step-by-step guide on adding IDE support.
 
-### L'IA ne suit pas les directives
+**Quick summary**:
+1. Create `templates/ides/your-ide/init.sh`
+2. Follow the function-based pattern (see `claude/init.sh`)
+3. Preserve user customizations
+4. Create symlinks or generate config files
+5. Test thoroughly
 
-1. **Claude** : Vérifiez les symlinks (`ls -la .claude/commands/`)
-2. **Cursor/Windsurf/Copilot** : Régénérez (`bash templates/ides/<tool>/init.sh`)
-3. Référencez explicitement : `@.ai/context/standards/typescript.md`
-4. Redémarrez votre outil IA
+## 🙏 Acknowledgments
 
-### Les symlinks ne fonctionnent pas (Windows)
-
-**Solution** : Utiliser Cursor, Windsurf ou Copilot (pas de symlinks)
-
-Pour Claude sur Windows :
-1. Activer le mode développeur Windows
-2. Ou modifier `templates/ides/claude/init.sh` :
-   ```bash
-   # Remplacer ln -sf par cp
-   cp -r .ai/commands/* .claude/commands/
-   ```
-
-### Conflit entre outils
-
-- `.ai/` est la source de vérité unique
-- Régénérez avec `bash templates/ides/<tool>/init.sh`
-- Ne modifiez JAMAIS les fichiers générés (`.claude/`, `.cursor/`, etc.)
-
-## 📚 Ressources
-
-- [Documentation complète](https://github.com/betagouv/ai-cli/docs)
-- [Exemples de projets](https://github.com/betagouv/ai-cli/examples)
-- [Templates personnalisés](https://github.com/betagouv/ai-cli/templates)
-
-## 🤝 Contribution
-
-Contributions bienvenues ! Voir [CONTRIBUTING.md](CONTRIBUTING.md).
-
-### Proposer un template
-
-Les équipes peuvent proposer leurs propres templates :
-
-1. Fork le repo
-2. Ajoutez votre template dans `templates/`
-3. Documentez dans `templates/README.md`
-4. Ouvrez une PR
+This project was heavily inspired by [@Melvynx](https://github.com/Melvynx)'s excellent [aiblueprint](https://github.com/Melvynx/aiblueprint). Thank you for paving the way!
 
 ## 📄 License
 
-MIT © beta.gouv.fr
+MIT
 
-## 🙋 Support
+## 💬 Support
 
-- GitHub Issues : [betagouv/ai-cli/issues](https://github.com/betagouv/ai-cli/issues)
-- Slack beta.gouv : `#incubateur-outils-dev`
+- **Issues**: [GitHub Issues](https://github.com/betagouv/ai-cli/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/betagouv/ai-cli/discussions)
 
 ---
 
-Fait avec ❤️ pour la communauté beta.gouv.fr
+**Made with ❤️ for developers tired of config duplication**
