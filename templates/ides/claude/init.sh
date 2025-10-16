@@ -170,11 +170,6 @@ print_summary() {
     echo "  .claude/output-styles/           → .ai/avatars/"
     echo "  .claude/settings.json            (copied from templates)"
     echo ""
-    echo "✨ Dynamic updates: Add files to .ai/ and they appear automatically in .claude/!"
-    echo ""
-    echo "Reference context with:"
-    echo "  @.ai/context/architecture.md"
-    echo ""
     if [ -d ".tmp" ]; then
         echo -e "${BLUE}📦 Backup files are stored in .tmp/${NC}"
     fi

@@ -132,7 +132,6 @@ create_symlinks() {
     if [ -d ".ai/context" ]; then
         ln -sf ../../.ai/context .cursor/rules/context
         echo -e "${GREEN}✓${NC} Linked .cursor/rules/context/ → .ai/context/"
-        echo -e "       ${BLUE}→ Reference with @.cursor/rules/context/architecture.md${NC}"
     fi
 }
 
@@ -145,10 +144,6 @@ print_summary() {
     echo "  .cursor/rules/context/           → .ai/context/"
     echo ""
     echo "✨ Dynamic updates: Changes to .ai/ are immediately available!"
-    echo ""
-    echo "In Cursor, reference with:"
-    echo "  @.cursor/rules/main.mdc"
-    echo "  @.cursor/rules/context/architecture.md"
     echo ""
     if [ -d ".tmp" ]; then
         echo -e "${BLUE}📦 Backup files are stored in .tmp/${NC}"

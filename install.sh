@@ -223,7 +223,7 @@ if [ -d "$IDE_DIR" ]; then
 
     # Show multi-select menu
     if [ ${#available_ides[@]} -gt 0 ]; then
-        selected_displays=($(multi_select "Which AI tools will your team use?" "${ide_displays[@]}"))
+        selected_displays=($(multi_select "Which AI tools will you use?" "${ide_displays[@]}"))
 
         # Map display names back to folder names
         for display in "${selected_displays[@]}"; do
@@ -346,8 +346,7 @@ echo -e "${BLUE}Selected contexts:${NC} ${SELECTED_CONTEXTS[*]:-None}"
 echo -e "${BLUE}Selected tools:${NC} ${TOOLS[*]}"
 echo ""
 echo -e "${BLUE}Next steps:${NC}"
-echo "  1. Review and customize files in .ai/ folder"
-echo "  2. Commit .ai/ folder to git"
-echo "  3. Launch /ai-cli-init to initialize context files"
-echo "  4. Open your AI tool and test"
+echo "  1. Review files in .ai/ folder and commit to git"
+echo "  2. Launch /ai-cli-init to initialize context files"
+echo "  3. Open your AI tool and test"
 echo ""
