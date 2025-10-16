@@ -53,6 +53,9 @@ preserve_user_customizations() {
 
     echo "📦 Preserving custom files..."
 
+    # Ensure .ai directories exist
+    mkdir -p .ai/context
+
     # Copy custom rules (non-symlink .mdc files)
     if [ -d ".cursor/rules" ]; then
         find .cursor/rules -type f ! -type l -name "*.mdc" 2>/dev/null | while read file; do

@@ -54,6 +54,9 @@ preserve_user_customizations() {
 
     echo "📦 Preserving your custom files..."
 
+    # Ensure .ai directories exist
+    mkdir -p .ai/commands .ai/agents .ai/avatars
+
     # Copy custom commands (if commands is a regular directory, not a symlink)
     if [ -d ".claude/commands" ] && [ ! -L ".claude/commands" ]; then
         find .claude/commands -type f -name "*.md" 2>/dev/null | while read file; do

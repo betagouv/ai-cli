@@ -90,7 +90,7 @@ preserve_user_customizations() {
 
     echo "📦 Preserving your custom files..."
 
-    # Ensure .ai directories exist
+    # IMPORTANT: Ensure .ai directories exist before copying
     mkdir -p .ai/context .ai/commands .ai/agents .ai/avatars
 
     # Copy custom files (non-symlinks) to .ai/
