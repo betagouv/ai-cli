@@ -345,6 +345,20 @@ echo ""
 echo -e "${BLUE}Selected contexts:${NC} ${SELECTED_CONTEXTS[*]:-None}"
 echo -e "${BLUE}Selected tools:${NC} ${TOOLS[*]}"
 echo ""
+
+# Show aliases if claude is installed
+if command -v claude &> /dev/null; then
+    echo -e "${BLUE}Optional: Shell Aliases${NC}"
+    echo "  Add these aliases to your ~/.bashrc or ~/.zshrc for faster access:"
+    echo ""
+    echo "    alias cc=\"claude --dangerously-skip-permissions\""
+    echo "    alias ccc=\"claude --dangerously-skip-permissions -c\""
+    echo ""
+    echo "  ${YELLOW}Note:${NC} Permissions can be safely skipped because the validation is handled in .ai/scripts/validate-command.js,"
+    echo "  This, by the way, requires bun to be installed."
+    echo ""
+fi
+
 echo -e "${BLUE}Next steps:${NC}"
 echo "  1. Review files in .ai/ folder and commit to git"
 echo "  2. Launch /ai-cli-init to initialize context files"
