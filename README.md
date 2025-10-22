@@ -39,9 +39,10 @@ curl -fsSL https://raw.githubusercontent.com/betagouv/ai-cli/main/install.sh | b
 
 **What happens:**
 
-1. **Asks which IDE you use**
+1. **Asks which IDE(s) you use**
    - Claude Code
    - Cursor
+   - You can select multiple (e.g., "1 2" for both)
 
 2. **Creates `.ai/` structure**
    - Sets up `AGENTS.md` (main configuration)
@@ -77,7 +78,7 @@ your-project/
 │   └── [symlinks to .ai/]
 │
 ├── .ai-cli.json                  # ❌ User config (gitignored)
-│   └── { "ide": "claude", "plugins": ["core"] }
+│   └── { "ides": ["claude", "cursor"], "plugins": ["core"] }
 │
 └── .gitignore
     └── .ai-cli.json              # Added automatically

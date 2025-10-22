@@ -41,16 +41,23 @@ fi
 echo "Reading configuration..."
 
 if command -v jq &> /dev/null; then
-    IDE=$(jq -r '.ide' .ai-cli.json)
+    # Try new format with ides array first, fallback to old ide field
+    IDES=($(jq -r '.ides[]? // .ide?' .ai-cli.json 2>/dev/null | grep -v "null"))
     PLUGINS=($(jq -r '.plugins[]' .ai-cli.json))
 else
     # Fallback: simple grep/sed parsing
-    IDE=$(grep -o '"ide":\s*"[^"]*"' .ai-cli.json | sed 's/.*"ide":\s*"\([^"]*\)".*/\1/')
+    # Try ides array first
+    IDES=($(grep -o '"ides":\s*\[.*\]' .ai-cli.json 2>/dev/null | sed 's/.*\[//' | sed 's/\].*//' | tr ',' '\n' | tr -d ' "' | grep -v '^$'))
+    # If empty, try old ide field
+    if [ ${#IDES[@]} -eq 0 ]; then
+        IDE_SINGLE=$(grep -o '"ide":\s*"[^"]*"' .ai-cli.json | sed 's/.*"ide":\s*"\([^"]*\)".*/\1/')
+        [ -n "$IDE_SINGLE" ] && IDES=("$IDE_SINGLE")
+    fi
     PLUGINS=($(grep -o '"plugins":\s*\[.*\]' .ai-cli.json | sed 's/.*\[//' | sed 's/\].*//' | tr ',' '\n' | tr -d ' "' | grep -v '^$'))
 fi
 
 echo -e "${GREEN}✓ Configuration loaded${NC}"
-echo "  IDE: $IDE"
+echo "  IDE(s): ${IDES[*]}"
 echo "  Plugins: ${PLUGINS[*]}"
 echo ""
 
@@ -106,14 +113,17 @@ echo ""
 # Update IDE configuration
 echo -e "${BLUE}🔄 Updating IDE configuration...${NC}"
 
-INIT_SCRIPT="$TEMP_DIR/templates/ides/$IDE/init.sh"
-if [ -f "$INIT_SCRIPT" ]; then
-    bash "$INIT_SCRIPT" || {
-        echo -e "${YELLOW}⚠️  IDE setup failed${NC}"
-    }
-else
-    echo -e "${YELLOW}⚠️  IDE init script not found${NC}"
-fi
+for IDE in "${IDES[@]}"; do
+    echo "  Updating: $IDE"
+    INIT_SCRIPT="$TEMP_DIR/templates/ides/$IDE/init.sh"
+    if [ -f "$INIT_SCRIPT" ]; then
+        bash "$INIT_SCRIPT" || {
+            echo -e "${YELLOW}⚠️  $IDE setup failed${NC}"
+        }
+    else
+        echo -e "${YELLOW}⚠️  $IDE init script not found${NC}"
+    fi
+done
 
 echo -e "${GREEN}✓ IDE configuration updated${NC}"
 echo ""
