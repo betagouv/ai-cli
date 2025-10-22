@@ -28,7 +28,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bun .ai/scripts/validate-command.js"
+            "command": "node .ai/scripts/validate-command.mjs"
           }
         ]
       }

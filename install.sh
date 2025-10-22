@@ -354,7 +354,7 @@ if command -v claude &> /dev/null; then
     echo "    alias cc=\"claude --dangerously-skip-permissions\""
     echo "    alias ccc=\"claude --dangerously-skip-permissions -c\""
     echo ""
-    echo "  ${YELLOW}Note:${NC} Permissions can be safely skipped because the validation is handled in .ai/scripts/validate-command.js,"
+    echo "  ${YELLOW}Note:${NC} Permissions can be safely skipped because the validation is handled in .ai/scripts/validate-command.mjs,"
     echo "  This, by the way, requires bun to be installed."
     echo ""
 fi
