@@ -10,15 +10,20 @@ This project uses a unified `.ai/` folder to configure all AI tools (Claude Code
 .ai/
 ├── AGENTS.md              # This file - main configuration
 ├── context/               # Project knowledge and guidelines
-│   ├── node/             # Node.js/JavaScript specific context
-│   ├── typescript/       # TypeScript specific context
-│   ├── go/               # Go specific context
-│   ├── ruby/             # Ruby specific context
-│   └── vue/              # Vue.js specific context
-├── commands/             # Custom slash commands
-├── agents/               # Specialized agents
-└── avatars/              # AI behavior profiles
+│   ├── ARCHITECTURE.template.md  # System architecture (run /ai-cli-init)
+│   ├── OVERVIEW.template.md      # Project overview (run /ai-cli-init)
+│   ├── TESTING.template.md       # Testing strategy (run /ai-cli-init)
+│   ├── DATABASE.template.md      # Database schema (run /ai-cli-init)
+│   ├── GIT-WORKFLOW.md           # Git workflow (from git plugin)
+│   └── <lang>/                   # Language-specific (from lang-* plugins)
+├── commands/              # Custom slash commands (from plugins)
+├── agents/                # Specialized agents (from plugins)
+├── avatars/               # AI behavior profiles
+└── scripts/               # Validation and utility scripts
 ```
+
+**Note**: Language-specific contexts (node/, typescript/, etc.) are added via plugins.
+Run `bin/ai-cli plugins add lang-node` to add Node.js context, for example.
 
 ## 🎯 How to Use This Configuration
 

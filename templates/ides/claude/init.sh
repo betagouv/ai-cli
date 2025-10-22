@@ -157,6 +157,13 @@ copy_static_files() {
         cp "$SCRIPT_DIR/settings.json" .claude/settings.json
         echo -e "${GREEN}✓${NC} Copied settings.json → .claude/settings.json"
     fi
+
+    # Copy Claude-specific scripts
+    if [ -d "$SCRIPT_DIR/scripts" ]; then
+        mkdir -p .ai/scripts/claude
+        cp -r "$SCRIPT_DIR/scripts"/* .ai/scripts/claude/
+        echo -e "${GREEN}✓${NC} Copied Claude scripts → .ai/scripts/claude/"
+    fi
 }
 
 print_summary() {
@@ -169,6 +176,7 @@ print_summary() {
     echo "  .claude/agents/                  → .ai/agents/"
     echo "  .claude/output-styles/           → .ai/avatars/"
     echo "  .claude/settings.json            (copied from templates)"
+    echo "  .ai/scripts/claude/              (Claude-specific scripts)"
     echo ""
     if [ -d ".tmp" ]; then
         echo -e "${BLUE}📦 Backup files are stored in .tmp/${NC}"

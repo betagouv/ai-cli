@@ -1,8 +1,8 @@
-# AI CLI - Single Source of Truth for AI Assistant Configurations
+# AI CLI - Plugin-Based AI Configuration
 
-> **🚧 Work in Progress** - This project is under active development. Feel free to join the discussion in our [beta Mattermost channel](https://mattermost.incubateur.net/betagouv/channels/domaine-dev-ai-workflows)!
+> **🚀 Ultra-Simple Setup** - One command, choose your IDE, and you're ready to code with AI!
 
-> Unified AI configuration management across IDEs - because your team shouldn't maintain duplicate configs
+> Unified AI configuration with modular plugins - install only what you need
 
 ## 🎯 The Problem
 
@@ -15,21 +15,18 @@ Modern development teams face a configuration nightmare when using AI assistants
 - Changes need to be manually synced everywhere
 - No single source of truth = configuration drift
 
-**Existing Solutions Fall Short:**
-- **[github/spec-kit](https://github.com/github/spec-kit)**: Copies commands to each IDE, creating duplication
-- **[Melvynx/aiblueprint](https://github.com/Melvynx/aiblueprint)**: Great inspiration (thank you [@Melvynx](https://github.com/Melvynx)!), but still requires per-IDE management
-
 ## ✨ The Solution
 
-**AI CLI provides a single `.ai/` folder as your source of truth**, automatically syncing to any IDE your team uses.
+**AI CLI provides a single `.ai/` folder as your source of truth**, with a **modular plugin system** to install only what you need.
 
 ### Key Benefits
 
+- ✅ **Ultra-fast setup** - One question: which IDE?
+- ✅ **Modular plugins** - Install only what you need
 - ✅ **Write once, use everywhere** - One configuration, all IDEs
-- ✅ **Git-friendly** - Commit only `.ai/`, IDE configs are generated
-- ✅ **Team synchronization** - Everyone gets the same guidelines
-- ✅ **Dynamic updates** - Add a file to `.ai/`, it appears in your IDE instantly
-- ✅ **Backup protection** - Existing configurations are preserved in `.tmp/`
+- ✅ **Git-friendly** - Commit only `.ai/`, configs are generated
+- ✅ **Easy updates** - `ai-cli update` to get latest
+- ✅ **Team synchronization** - Everyone gets the same setup
 - ✅ **Works everywhere** - Any bash system (macOS, Linux, WSL)
 
 ## 📦 Installation
@@ -40,30 +37,27 @@ Modern development teams face a configuration nightmare when using AI assistants
 curl -fsSL https://raw.githubusercontent.com/betagouv/ai-cli/main/install.sh | bash
 ```
 
-**What happens during installation:**
+**What happens:**
 
-1. **Discovers your project**
-   - Prompts for project name, description, and framework
-   - Asks which contexts you need (Node, TypeScript, Go, Ruby, Vue)
+1. **Asks which IDE you use**
+   - Claude Code
+   - Cursor
 
 2. **Creates `.ai/` structure**
    - Sets up `AGENTS.md` (main configuration)
    - Creates `context/`, `commands/`, `agents/`, `avatars/` folders
-   - Copies selected context templates
 
-3. **Asks which IDEs you use**
-   - Claude Code
-   - Cursor
-   - (More coming soon - contributions welcome!)
+3. **Installs core plugin automatically**
+   - Essential commands: `/ai-cli-init`, `/command-create`, `/agent-create`, etc.
+   - Essential agents: `explore-codebase`, `prompt-engineering`, `fast-coder`
 
-4. **Runs IDE setup**
-   - Backs up any existing configuration to `.tmp/`
-   - Preserves your custom files (copies them to `.ai/`)
-   - Creates symlinks or generated files for your IDE
+4. **Configures your IDE**
+   - Creates symlinks for Claude Code
+   - Creates symlinks for Cursor
 
-5. **Updates `.gitignore`**
-   - Ignores generated IDE folders
-   - Ignores `.tmp/` backup folder
+5. **Creates `.ai-cli.json`** (gitignored)
+   - Stores your IDE choice and installed plugins
+   - Each dev can have different settings
 
 ### Result
 
@@ -72,24 +66,83 @@ your-project/
 ├── .ai/                          # ✅ Commit this (source of truth)
 │   ├── AGENTS.md                 # Main config file
 │   ├── context/                  # Project knowledge
-│   ├── commands/                 # Custom slash commands
-│   ├── agents/                   # Specialized agents
+│   ├── commands/                 # Slash commands (from plugins)
+│   ├── agents/                   # Specialized agents (from plugins)
 │   └── avatars/                  # AI behavior profiles
 │
 ├── .claude/                      # ❌ Generated (gitignored)
-│   ├── CLAUDE.md → .ai/AGENTS.md
-│   ├── commands/ → .ai/commands/
-│   └── ...
+│   └── [symlinks to .ai/]
 │
 ├── .cursor/                      # ❌ Generated (gitignored)
-│   ├── commands/ → .ai/commands/
-│   ├── agents/ → .ai/agents/
-│   └── rules/
-│       ├── main.mdc → .ai/AGENTS.md
-│       └── context/ → .ai/context/
+│   └── [symlinks to .ai/]
 │
-└── .tmp/                         # ❌ Your old configs (safe backup)
-    └── claude.backup_20251016_143022/
+├── .ai-cli.json                  # ❌ User config (gitignored)
+│   └── { "ide": "claude", "plugins": ["core"] }
+│
+└── .gitignore
+    └── .ai-cli.json              # Added automatically
+```
+
+## 🔌 Plugin System
+
+### Available Plugins
+
+```bash
+# List all available plugins
+bin/ai-cli plugins list
+
+# Output:
+#   ✓ core (installed)
+#     github
+#     code-quality
+#     git
+#     image-manipulation
+#     lang-node
+#     lang-typescript
+#     lang-go
+#     lang-ruby
+#     lang-vue
+```
+
+### Plugin Overview
+
+| Plugin | Description | Contains |
+|--------|-------------|----------|
+| **core** | Essential commands & agents | `/ai-cli-init`, `/command-create`, `/agent-create`, `/deep-search`, `fast-coder`, `explore-codebase` |
+| **github** | GitHub workflow automation | `/code-issue-process`, `/code-pr-create`, `/code-pr-process-comments` |
+| **code-quality** | Code analysis & optimization | `/code-analyse`, `/code-ci`, `/code-clean`, `/code-explain`, `/code-optimize` |
+| **git** | Git commit automation | `/code-commit` |
+| **image-manipulation** | Image processing | `/image2md` |
+| **lang-node** | Node.js context & tools | Node.js code style, dependencies, performance, testing, `/code-fix` |
+| **lang-typescript** | TypeScript context | TypeScript code style and best practices |
+| **lang-go** | Go context | Go code style and idioms |
+| **lang-ruby** | Ruby context | Ruby code style and conventions |
+| **lang-vue** | Vue.js context | Vue.js patterns and best practices |
+
+### Install Plugins
+
+```bash
+# Install a plugin
+bin/ai-cli plugins add lang-node
+
+# Install multiple plugins
+bin/ai-cli plugins add lang-typescript
+bin/ai-cli plugins add github
+bin/ai-cli plugins add code-quality
+
+# Plugins are added to .ai/ and listed in .ai-cli.json
+```
+
+### Update
+
+```bash
+# Update ai-cli and all installed plugins
+bin/ai-cli update
+
+# Checks git status first (must be clean)
+# Downloads latest version
+# Re-installs your plugins
+# Updates IDE configuration
 ```
 
 ## 🚀 Quick Start
@@ -100,11 +153,24 @@ your-project/
 curl -fsSL https://raw.githubusercontent.com/betagouv/ai-cli/main/install.sh | bash
 ```
 
-### 2. Initialize Context Files
-
-If you already have documentation scattered across `README.md`, `CLAUDE.md`, or `AGENTS.md` files:
+### 2. Add Plugins (Optional)
 
 ```bash
+# See what's available
+bin/ai-cli plugins list
+
+# Install language support
+bin/ai-cli plugins add lang-node
+bin/ai-cli plugins add lang-typescript
+
+# Install GitHub integration
+bin/ai-cli plugins add github
+```
+
+### 3. Initialize Context Files
+
+```bash
+# In Claude Code or Cursor
 /ai-cli-init
 ```
 
@@ -112,14 +178,9 @@ This command:
 - Finds all documentation in your codebase
 - Extracts relevant sections
 - Organizes them into `.ai/context/` files
-- **Preserves original text exactly** (no AI rewriting)
-- **Removes extracted content** from original files to avoid duplicates
-- Leaves breadcrumb comments showing where content moved
-- **Renames CLAUDE.md → AGENTS.md** (or merges if AGENTS.md exists)
-- **Keeps human-facing sections** in README.md (Installation, Usage, etc.)
-- **If no documentation found**: Suggests using `/explore-codebase` to generate from code
+- Removes extracted content from original files
 
-### 3. Commit Your Configuration
+### 4. Commit Your Configuration
 
 ```bash
 git add .ai/
@@ -127,14 +188,7 @@ git commit -m "feat: add AI configuration"
 git push
 ```
 
-### 4. Team Members Pull and Sync
-
-```bash
-git pull
-# IDE configs update automatically via symlinks!
-# Or re-run init if needed:
-bash templates/ides/claude/init.sh
-```
+**Note:** `.ai-cli.json` is gitignored - each dev can choose their own IDE and plugins!
 
 ## 📁 Architecture
 
@@ -144,172 +198,130 @@ bash templates/ides/claude/init.sh
 │
 ├── context/                      # Project knowledge base
 │   ├── ARCHITECTURE.md           # System design, tech stack
-│   ├── OVERVIEW.md               # Project description, features
+│   ├── OVERVIEW.md               # Project description
 │   ├── TESTING.md                # Testing strategy
-│   ├── DATABASE.md               # Schema, queries, migrations
+│   ├── DATABASE.md               # Schema, queries
 │   ├── GIT-WORKFLOW.md           # Branching, commits, PRs
 │   │
-│   ├── node/                     # Node.js specific
-│   │   ├── CODE-STYLE.md         # JavaScript/Node standards
-│   │   ├── DEPENDENCIES.md       # npm, package management
-│   │   ├── PERFORMANCE.md        # Optimization patterns
-│   │   └── TESTING.md            # Node test frameworks
-│   │
-│   ├── typescript/               # TypeScript specific
-│   │   └── CODE-STYLE.md
-│   │
-│   ├── go/                       # Go specific
-│   │   └── CODE-STYLE.md
-│   │
-│   └── vue/                      # Vue specific
-│       └── CODE-STYLE.md
+│   └── node/                     # From lang-node plugin
+│       ├── CODE-STYLE.md
+│       ├── DEPENDENCIES.md
+│       ├── PERFORMANCE.md
+│       └── TESTING.md
 │
-├── commands/                     # Custom slash commands
-│   └── ai-cli-init.md            # /ai-cli-init command
+├── commands/                     # From plugins
+│   ├── ai-cli-init.md            # core
+│   ├── command-create.md         # core
+│   ├── agent-create.md           # core
+│   ├── code-pr-create.md         # github
+│   └── code-commit.md            # git
 │
-├── agents/                       # Specialized agents
-│   └── .gitkeep
+├── agents/                       # From plugins
+│   ├── fast-coder.md             # core (fast edits)
+│   ├── explore-codebase.md       # core
+│   └── prompt-engineering.md     # core
 │
 └── avatars/                      # AI behavior profiles
     └── .gitkeep
 ```
 
-## 🛠️ Available Commands
+## 🛠️ CLI Commands
 
-Once installed, you have access to custom slash commands in Claude Code:
+### Plugin Management
+
+```bash
+# List available plugins
+bin/ai-cli plugins list
+
+# Install a plugin
+bin/ai-cli plugins add <plugin-name>
+
+# Examples
+bin/ai-cli plugins add lang-node
+bin/ai-cli plugins add github
+bin/ai-cli plugins add code-quality
+```
+
+### Update
+
+```bash
+# Update ai-cli and installed plugins
+bin/ai-cli update
+```
+
+### Help
+
+```bash
+# Show help
+bin/ai-cli help
+```
+
+## 📚 Core Plugin Commands
+
+Once installed, you have access to these commands:
 
 ### `/ai-cli-init`
 
-**Purpose**: Initialize `.ai/context/` files from existing documentation
+Initialize `.ai/context/` files from existing documentation
 
-**What it does**:
-1. Scans your codebase for `README.md`, `CLAUDE.md`, `AGENTS.md`, and `*.mdc` files
-2. Includes existing documentation in `.ai/context/` for reorganization
-3. Identifies sections like "Architecture", "Testing", "Coding Guidelines", etc.
-4. Maps them to appropriate context files (e.g., "Coding Guidelines" → `CODING-STYLE.md`)
-5. **Preserves original text exactly** - no AI rewriting or improvements
-6. Adds source comments to track where content came from
-7. **Removes extracted sections** from original files to avoid duplicates
-8. Leaves breadcrumb comments (e.g., `<!-- Moved to .ai/context/ARCHITECTURE.md -->`)
-9. **Renames CLAUDE.md → AGENTS.md** (merges with existing AGENTS.md if present, keeping AGENTS.md content first)
-10. **Keeps human-facing sections** in README.md (Installation, Usage, License, etc.)
-11. **If no documentation found**: Suggests using `/explore-codebase` to generate from code analysis
+### `/command-create`
 
-**Usage**:
-```bash
-# In Claude Code
-/ai-cli-init
+Create a new slash command
 
-# If no documentation exists, follow up with:
-/explore-codebase
-```
+### `/agent-create`
 
-**Example output**:
-```
-✓ Processed Files:
-  - README.md (3 sections extracted, 3 sections removed)
-  - CLAUDE.md (5 sections extracted, 5 sections removed)
+Create a new specialized agent
 
-✓ Updated Context Files:
-  - ARCHITECTURE.md (2 sections added)
-  - CODING-STYLE.md (1 section added)
-  - OVERVIEW.md (3 sections added)
+### `/context-cleanup`
 
-✓ Cleaned Original Files:
-  - README.md (removed "Architecture", "Testing", "Code Style")
-  - CLAUDE.md (removed "System Design", "Guidelines", etc.)
-  - Breadcrumb comments added to show new locations
+Optimize and clean up context files
 
-✓ Renamed/Merged Files:
-  - CLAUDE.md → AGENTS.md (renamed)
-  - modules/auth/CLAUDE.md + AGENTS.md → AGENTS.md (merged)
-  - modules/api/CLAUDE.md → AGENTS.md (renamed)
+### `/deep-search`
 
-# Or if no documentation:
-⚠️ No documentation files found.
-💡 Run /explore-codebase to generate documentation from your codebase.
-```
+Perform deep research on a topic
 
-## 🔧 How It Works
+### `/avatar-create`
 
-### For Claude Code (Symlinks)
+Create a new AI personality/output style
 
-```bash
-bash templates/ides/claude/init.sh
-```
+### `/feature-create`
 
-**Creates symlinks**:
-- `.claude/CLAUDE.md` → `.ai/AGENTS.md`
-- `.claude/commands/` → `.ai/commands/`
-- `.claude/agents/` → `.ai/agents/`
-- `.claude/output-styles/` → `.ai/avatars/`
-
-**Why symlinks?**
-- ✅ **Dynamic**: Add a file to `.ai/commands/`, it appears instantly in Claude
-- ✅ **No sync needed**: Changes to `.ai/` are immediately available
-- ✅ **Git-friendly**: Only commit `.ai/`, symlinks are regenerated
-
-### For Cursor (Symlinks)
-
-```bash
-bash templates/ides/cursor/init.sh
-```
-
-**Creates symlinks**:
-- `.cursor/rules/main.mdc` → `.ai/AGENTS.md`
-- `.cursor/rules/context/` → `.ai/context/`
-- `.cursor/commands/` → `.ai/commands/`
-- `.cursor/agents/` → `.ai/agents/`
-
-**Reference in Cursor**:
-- `@.cursor/rules/main.mdc`
-- `@.cursor/rules/context/architecture.md`
+Scaffold a new feature with EPCT methodology
 
 ## 🔄 Daily Workflow
 
-### Adding a Command
+### Adding a Plugin
 
 ```bash
-# 1. Create command file
-cat > .ai/commands/deploy.md << 'EOF'
----
-description: Deploy application to production
----
+# Discover available plugins
+bin/ai-cli plugins list
 
-You are a deployment specialist...
-EOF
+# Install what you need
+bin/ai-cli plugins add code-quality
 
-# 2. Already available in Claude Code!
-# Just use: /deploy
-
-# 3. Commit
-git add .ai/commands/deploy.md
-git commit -m "feat: add deploy command"
+# Commands appear instantly in your IDE
+/code-analyse
 ```
 
-### Updating Guidelines
+### Updating
 
 ```bash
-# 1. Edit source of truth
-vim .ai/context/node/CODE-STYLE.md
+# Get latest updates
+bin/ai-cli update
 
-# 2. Changes are instantly available (symlinks)
-# For Cursor, re-run if needed:
-bash templates/ides/cursor/init.sh
-
-# 3. Commit
-git add .ai/context/node/CODE-STYLE.md
-git commit -m "docs: update Node.js code style"
+# Your installed plugins are automatically updated
 ```
 
-### Pulling Team Changes
+### Team Synchronization
 
 ```bash
+# Pull changes
 git pull
 
-# Claude: Nothing to do (symlinks update automatically)
-# Cursor: Re-run init if context changed
-bash templates/ides/cursor/init.sh
+# If new plugins are needed, install them
+bin/ai-cli plugins add lang-typescript
+
+# Everyone can have different .ai-cli.json (gitignored)
 ```
 
 ## 🎯 IDE Support
@@ -317,31 +329,36 @@ bash templates/ides/cursor/init.sh
 | IDE | Status | Configuration |
 |-----|--------|---------------|
 | **Claude Code** | ✅ Full | `.claude/` (symlinks) |
-| **Cursor** | ✅ Full | `.cursor/rules/` (symlinks) |
+| **Cursor** | ✅ Full | `.cursor/` (symlinks) |
 | **Others** | 🔜 Coming | [Contribute!](templates/ides/CONTRIBUTE.md) |
 
 ## 🤝 Contributing
 
-Want to add support for your favorite IDE?
+Want to add support for your favorite IDE or create a plugin?
 
-See **[templates/ides/CONTRIBUTE.md](templates/ides/CONTRIBUTE.md)** for a step-by-step guide on adding IDE support.
+See **[templates/ides/CONTRIBUTE.md](templates/ides/CONTRIBUTE.md)** for IDE integration guide.
 
-**Quick summary**:
-1. Create `templates/ides/your-ide/init.sh`
-2. Follow the function-based pattern (see `claude/init.sh`)
-3. Preserve user customizations
-4. Create symlinks or generate config files
-5. Test thoroughly
+For plugins, just create a folder in `templates/plugins/` with your plugin name and structure:
+
+```
+templates/plugins/my-plugin/
+├── commands/
+│   └── my-command.md
+├── agents/
+│   └── my-agent.md
+└── context/
+    └── MY-CONTEXT.md
+```
 
 ## 📚 Getting Started with AI Development
 
-To get the most out of this project and AI-assisted development in general, we recommend getting proper training in AI development practices.
+To get the most out of this project and AI-assisted development, we recommend getting proper training in AI development practices.
 
-**We recommend [Melvynx's AI Blueprint training](https://aiblueprint.dev/?ref=aJmHMnVnfaK)** to understand how to best work with AI assistants and structure your projects for optimal AI collaboration.
+**We recommend [Melvynx's AI Blueprint training](https://aiblueprint.dev/?ref=aJmHMnVnfaK)** to understand how to best work with AI assistants.
 
 ## 🙏 Acknowledgments
 
-This project was heavily inspired by [@Melvynx](https://github.com/Melvynx)'s excellent [aiblueprint](https://github.com/Melvynx/aiblueprint). Thank you for paving the way!
+This project was heavily inspired by [@Melvynx](https://github.com/Melvynx)'s excellent [aiblueprint](https://github.com/Melvynx/aiblueprint). Thank you!
 
 ## 📄 License
 
@@ -351,7 +368,8 @@ MIT
 
 - **Issues**: [GitHub Issues](https://github.com/betagouv/ai-cli/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/betagouv/ai-cli/discussions)
+- **Mattermost**: [Beta Gouv AI Channel](https://mattermost.incubateur.net/betagouv/channels/domaine-dev-ai-workflows)
 
 ---
 
-**Made with ❤️ for developers tired of config duplication**
+**Made with ❤️ for developers who want simple, modular AI configuration**

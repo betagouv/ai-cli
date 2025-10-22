@@ -10,11 +10,10 @@ NC='\033[0m' # No Color
 
 # Repository information
 REPO_URL="https://github.com/betagouv/ai-cli"
-RAW_URL="https://raw.githubusercontent.com/betagouv/ai-cli/main"
 
 echo -e "${BLUE}"
-echo "🤖 Beta.gouv.fr AI Configuration Setup"
-echo "=======================================${NC}"
+echo "🤖 AI CLI - Simple AI Configuration Setup"
+echo "==========================================${NC}"
 echo ""
 
 # Check dependencies
@@ -57,17 +56,6 @@ if [ -d ".ai" ]; then
     fi
 fi
 
-# Project information
-echo -e "${BLUE}Project Information${NC}"
-read -p "Project name [$(basename "$PWD")]: " PROJECT_NAME </dev/tty
-PROJECT_NAME=${PROJECT_NAME:-$(basename "$PWD")}
-
-read -p "Project description: " PROJECT_DESC </dev/tty
-
-echo ""
-echo -e "${BLUE}📝 Downloading templates...${NC}"
-echo ""
-
 # Check if we're running from within the repository (for local development/testing)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CLEANUP_TEMP=false
@@ -81,7 +69,7 @@ else
     CLEANUP_TEMP=true
 
     # Clone repository to temp directory
-    echo "Fetching available contexts and tools..."
+    echo "Fetching templates..."
     git clone --depth 1 --quiet "$REPO_URL" "$TEMP_DIR" 2>/dev/null || {
         echo -e "${RED}❌ Failed to download templates${NC}"
         exit 1
@@ -93,182 +81,42 @@ if [ "$CLEANUP_TEMP" = true ]; then
     trap "rm -rf $TEMP_DIR" EXIT
 fi
 
-# Multi-select function using simple prompt
-multi_select() {
-    local prompt="$1"
-    shift
-    local options=("$@")
-    local selected_items=()
+# Project information
+echo -e "${BLUE}Project Information${NC}"
+read -p "Project name [$(basename "$PWD")]: " PROJECT_NAME </dev/tty
+PROJECT_NAME=${PROJECT_NAME:-$(basename "$PWD")}
 
-    # Display to terminal, not captured by command substitution
-    echo -e "${BLUE}${prompt}${NC}" >&2
-    echo -e "${YELLOW}Enter space-separated numbers (e.g., '1 3 5'), or 'all' for everything${NC}" >&2
-    echo "" >&2
-
-    # Display options with numbers
-    for i in "${!options[@]}"; do
-        echo "  $((i+1)). ${options[$i]}" >&2
-    done
-
-    echo "" >&2
-    read -p "Your selection: " -r selection </dev/tty
-
-    # Handle 'all' selection
-    if [[ "$selection" == "all" ]]; then
-        selected_items=("${options[@]}")
-    else
-        # Process space-separated numbers
-        for choice_num in $selection; do
-            # Check if the choice number is valid
-            if [[ "$choice_num" =~ ^[0-9]+$ ]] && (( choice_num > 0 && choice_num <= ${#options[@]} )); then
-                selected_items+=("${options[choice_num - 1]}")
-            elif [[ "$choice_num" =~ ^[0-9]+$ ]]; then
-                echo "Invalid selection: $choice_num" >&2
-            fi
-        done
-
-        # Remove duplicates
-        if [ ${#selected_items[@]} -gt 0 ]; then
-            selected_items=($(printf '%s\n' "${selected_items[@]}" | sort -u))
-        fi
-    fi
-
-    # Only output the result to stdout (captured by command substitution)
-    echo "${selected_items[@]}"
-}
-
-# Select contexts (frameworks/languages)
+# Select IDE
 echo ""
-SELECTED_CONTEXTS=()
-CONTEXT_DIR="$TEMP_DIR/templates/.ai/context"
-
-if [ -d "$CONTEXT_DIR" ]; then
-    # Collect all context folders
-    available_contexts=()
-    context_displays=()
-
-    for context_path in "$CONTEXT_DIR"/*; do
-        if [ -d "$context_path" ]; then
-            context_name=$(basename "$context_path")
-
-            # Capitalize first letter for display
-            first_char=$(echo "$context_name" | cut -c1 | tr '[:lower:]' '[:upper:]')
-            rest_chars=$(echo "$context_name" | cut -c2-)
-            context_display="${first_char}${rest_chars}"
-
-            available_contexts+=("$context_name")
-            context_displays+=("$context_display")
-        fi
-    done
-
-    # Show multi-select menu
-    if [ ${#available_contexts[@]} -gt 0 ]; then
-        selected_displays=($(multi_select "Which contexts do you want to include?" "${context_displays[@]}"))
-
-        # Map display names back to folder names
-        for display in "${selected_displays[@]}"; do
-            display_lower=$(echo "$display" | tr '[:upper:]' '[:lower:]')
-            SELECTED_CONTEXTS+=("$display_lower")
-        done
-    fi
-fi
-
-# Set FRAMEWORK for placeholder replacement (use first selected or "Other")
-if [ ${#SELECTED_CONTEXTS[@]} -gt 0 ]; then
-    # Capitalize first context for display
-    first_char=$(echo "${SELECTED_CONTEXTS[0]}" | cut -c1 | tr '[:lower:]' '[:upper:]')
-    rest_chars=$(echo "${SELECTED_CONTEXTS[0]}" | cut -c2-)
-    FRAMEWORK="${first_char}${rest_chars}"
-
-    # Add remaining contexts if any
-    if [ ${#SELECTED_CONTEXTS[@]} -gt 1 ]; then
-        for i in "${SELECTED_CONTEXTS[@]:1}"; do
-            first_char=$(echo "$i" | cut -c1 | tr '[:lower:]' '[:upper:]')
-            rest_chars=$(echo "$i" | cut -c2-)
-            FRAMEWORK="$FRAMEWORK, ${first_char}${rest_chars}"
-        done
-    fi
-else
-    FRAMEWORK="Other"
-fi
-
-# AI Tools selection - dynamically discover available IDEs
+echo -e "${BLUE}Which IDE do you use?${NC}"
+echo "  1) Claude Code"
+echo "  2) Cursor"
 echo ""
-TOOLS=()
-IDE_DIR="$TEMP_DIR/templates/ides"
+read -p "Your choice (1 or 2): " -n 1 -r IDE_CHOICE </dev/tty
+echo ""
 
-if [ -d "$IDE_DIR" ]; then
-    # Collect all IDE folders
-    available_ides=()
-    ide_displays=()
-
-    for ide_path in "$IDE_DIR"/*; do
-        if [ -d "$ide_path" ]; then
-            ide_name=$(basename "$ide_path")
-
-            # Capitalize first letter for display (portable way)
-            first_char=$(echo "$ide_name" | cut -c1 | tr '[:lower:]' '[:upper:]')
-            rest_chars=$(echo "$ide_name" | cut -c2-)
-            ide_display="${first_char}${rest_chars}"
-
-            # Special case for copilot
-            if [ "$ide_name" = "copilot" ]; then
-                ide_display="GitHub Copilot"
-            fi
-
-            available_ides+=("$ide_name")
-            ide_displays+=("$ide_display")
-        fi
-    done
-
-    # Show multi-select menu
-    if [ ${#available_ides[@]} -gt 0 ]; then
-        selected_displays=($(multi_select "Which AI tools will you use?" "${ide_displays[@]}"))
-
-        # Map display names back to folder names
-        for display in "${selected_displays[@]}"; do
-            # Find the corresponding folder name
-            for i in "${!ide_displays[@]}"; do
-                if [[ "${ide_displays[$i]}" == "$display" ]]; then
-                    TOOLS+=("${available_ides[$i]}")
-                    break
-                fi
-            done
-        done
-    fi
-else
-    echo -e "${RED}❌ No IDE templates found${NC}"
-    exit 1
-fi
-
-if [ ${#TOOLS[@]} -eq 0 ]; then
-    echo -e "${YELLOW}No tools selected. Exiting.${NC}"
-    exit 0
-fi
+case $IDE_CHOICE in
+    1)
+        IDE="claude"
+        IDE_NAME="Claude Code"
+        ;;
+    2)
+        IDE="cursor"
+        IDE_NAME="Cursor"
+        ;;
+    *)
+        echo -e "${RED}❌ Invalid choice${NC}"
+        exit 1
+        ;;
+esac
 
 echo ""
 echo -e "${BLUE}📝 Creating AI configuration structure...${NC}"
 echo ""
 
-# Copy .ai folder structure (excluding context folder)
+# Copy .ai folder structure
 echo "Creating .ai structure..."
 cp -r "$TEMP_DIR/templates/.ai" .
-
-# Remove all context folders, we'll copy only selected ones
-rm -rf .ai/context/*
-
-# Copy only selected context folders
-if [ ${#SELECTED_CONTEXTS[@]} -gt 0 ]; then
-    echo "Installing selected contexts: ${SELECTED_CONTEXTS[*]}"
-    for context in "${SELECTED_CONTEXTS[@]}"; do
-        if [ -d "$TEMP_DIR/templates/.ai/context/$context" ]; then
-            cp -r "$TEMP_DIR/templates/.ai/context/$context" .ai/context/
-            echo -e "${GREEN}✓${NC} Added $context context"
-        fi
-    done
-else
-    echo -e "${YELLOW}⚠️  No contexts selected${NC}"
-fi
 
 # Replace placeholders in all .ai files
 echo "Customizing templates with your project info..."
@@ -279,8 +127,7 @@ replace_placeholders() {
     if [ -f "$file" ]; then
         sed -i.bak \
             -e "s/{{PROJECT_NAME}}/$PROJECT_NAME/g" \
-            -e "s/{{PROJECT_DESC}}/${PROJECT_DESC:-Description à ajouter}/g" \
-            -e "s/{{FRAMEWORK}}/$FRAMEWORK/g" \
+            -e "s/{{FRAMEWORK}}/Core/g" \
             "$file"
         rm -f "${file}.bak"
     fi
@@ -293,74 +140,104 @@ done
 
 echo -e "${GREEN}✓ Created .ai structure${NC}"
 
-# Run init scripts for selected tools
+# Install core plugin (always installed)
 echo ""
-echo -e "${BLUE}🔄 Configuring selected tools...${NC}"
+echo -e "${BLUE}📦 Installing core plugin...${NC}"
+
+if [ -d "$TEMP_DIR/templates/plugins/core/commands" ]; then
+    mkdir -p .ai/commands
+    cp -r "$TEMP_DIR/templates/plugins/core/commands"/* .ai/commands/ 2>/dev/null || true
+fi
+
+if [ -d "$TEMP_DIR/templates/plugins/core/agents" ]; then
+    mkdir -p .ai/agents
+    cp -r "$TEMP_DIR/templates/plugins/core/agents"/* .ai/agents/ 2>/dev/null || true
+fi
+
+echo -e "${GREEN}✓ Core plugin installed${NC}"
+
+# Run IDE setup
+echo ""
+echo -e "${BLUE}🔄 Configuring $IDE_NAME...${NC}"
 echo ""
 
-for tool in "${TOOLS[@]}"; do
-    INIT_SCRIPT="$TEMP_DIR/templates/ides/$tool/init.sh"
-    if [ -f "$INIT_SCRIPT" ]; then
-        echo -e "${BLUE}Setting up $tool...${NC}"
-        bash "$INIT_SCRIPT" || {
-            echo -e "${YELLOW}⚠️  $tool setup failed${NC}"
-        }
-        echo ""
+INIT_SCRIPT="$TEMP_DIR/templates/ides/$IDE/init.sh"
+if [ -f "$INIT_SCRIPT" ]; then
+    bash "$INIT_SCRIPT" || {
+        echo -e "${YELLOW}⚠️  $IDE_NAME setup failed${NC}"
+    }
+    echo ""
 
-        # Append IDE .gitignore to project .gitignore if it exists
-        IDE_GITIGNORE="$TEMP_DIR/templates/ides/$tool/.gitignore"
-        if [ -f "$IDE_GITIGNORE" ]; then
-            echo "Updating project .gitignore for $tool..."
+    # Append IDE .gitignore to project .gitignore if it exists
+    IDE_GITIGNORE="$TEMP_DIR/templates/ides/$IDE/.gitignore"
+    if [ -f "$IDE_GITIGNORE" ]; then
+        echo "Updating project .gitignore for $IDE_NAME..."
 
-            # Create .gitignore if it doesn't exist
-            touch .gitignore
+        # Create .gitignore if it doesn't exist
+        touch .gitignore
 
-            # Check if we already have this IDE's gitignore section
-            IDE_MARKER="# ${tool} - Auto-generated symlinks"
-            if ! grep -q "$IDE_MARKER" .gitignore; then
-                # Add a separator and marker
-                echo "" >> .gitignore
-                echo "# =============================================================================" >> .gitignore
-                echo "$IDE_MARKER" >> .gitignore
-                echo "# Generated from templates/ides/$tool/.gitignore" >> .gitignore
-                echo "# =============================================================================" >> .gitignore
+        # Check if we already have this IDE's gitignore section
+        IDE_MARKER="# ${IDE} - Auto-generated symlinks"
+        if ! grep -q "$IDE_MARKER" .gitignore; then
+            # Add a separator and marker
+            echo "" >> .gitignore
+            echo "# =============================================================================" >> .gitignore
+            echo "$IDE_MARKER" >> .gitignore
+            echo "# ⚠️  Auto-generated by ai-cli - Do not edit manually" >> .gitignore
+            echo "# =============================================================================" >> .gitignore
 
-                # Append the gitignore content directly (paths already include directory)
-                while IFS= read -r line; do
-                    # Skip empty lines and comments from template
-                    if [[ -n "$line" ]] && [[ ! "$line" =~ ^# ]]; then
-                        echo "$line" >> .gitignore
-                    fi
-                done < "$IDE_GITIGNORE"
+            # Append the gitignore content directly
+            while IFS= read -r line; do
+                # Skip empty lines and comments from template
+                if [[ -n "$line" ]] && [[ ! "$line" =~ ^# ]]; then
+                    echo "$line" >> .gitignore
+                fi
+            done < "$IDE_GITIGNORE"
 
-                echo -e "${GREEN}✓${NC} Updated .gitignore for $tool"
-            fi
+            echo -e "${GREEN}✓${NC} Updated .gitignore for $IDE_NAME"
         fi
     fi
-done
+fi
+
+# Create .ai-cli.json
+echo ""
+echo -e "${BLUE}📝 Creating .ai-cli.json...${NC}"
+
+cat > .ai-cli.json << EOF
+{
+  "version": "1.0.0",
+  "ide": "$IDE",
+  "plugins": ["core"]
+}
+EOF
+
+echo -e "${GREEN}✓ Created .ai-cli.json${NC}"
+
+# Add .ai-cli.json to .gitignore
+if ! grep -q "^\.ai-cli\.json" .gitignore 2>/dev/null; then
+    echo "" >> .gitignore
+    echo "# AI CLI configuration (user-specific)" >> .gitignore
+    echo ".ai-cli.json" >> .gitignore
+    echo -e "${GREEN}✓ Added .ai-cli.json to .gitignore${NC}"
+fi
 
 echo ""
 echo -e "${GREEN}✅ AI configuration initialized successfully!${NC}"
 echo ""
-echo -e "${BLUE}Selected contexts:${NC} ${SELECTED_CONTEXTS[*]:-None}"
-echo -e "${BLUE}Selected tools:${NC} ${TOOLS[*]}"
+echo -e "${BLUE}IDE:${NC} $IDE_NAME"
+echo -e "${BLUE}Plugins:${NC} core"
 echo ""
 
-# Show aliases if claude is installed
-if command -v claude &> /dev/null; then
-    echo -e "${BLUE}Optional: Shell Aliases${NC}"
-    echo "  Add these aliases to your ~/.bashrc or ~/.zshrc for faster access:"
-    echo ""
-    echo "    alias cc=\"claude --dangerously-skip-permissions\""
-    echo "    alias ccc=\"claude --dangerously-skip-permissions -c\""
-    echo ""
-    echo "  ${YELLOW}Note:${NC} Permissions can be safely skipped because the validation is handled in .ai/scripts/validate-command.mjs,"
-    echo "  This, by the way, requires bun to be installed."
-    echo ""
-fi
-
+# Show next steps
 echo -e "${BLUE}Next steps:${NC}"
-echo "  1. Review files in .ai/ folder and commit to git"
-echo "  2. Launch /ai-cli-init to initialize context files"
-echo "  3. Open your AI tool and test"
+echo "  1. Review files in .ai/ folder"
+echo "  2. Run: /ai-cli-init to initialize context files"
+echo "  3. Commit .ai/ to git (but not .ai-cli.json)"
+echo ""
+echo -e "${BLUE}Add more plugins:${NC}"
+echo "  Run: bin/ai-cli plugins list"
+echo "  Then: bin/ai-cli plugins add <plugin-name>"
+echo ""
+echo -e "${BLUE}Update later:${NC}"
+echo "  Run: bin/ai-cli update"
 echo ""
