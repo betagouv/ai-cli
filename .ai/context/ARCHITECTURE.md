@@ -252,3 +252,125 @@ User → Frontend → API → Service → Database
 - [SECURITY.md](./SECURITY.md) - Security guidelines
 - [TESTING.md](./TESTING.md) - Testing strategy
 - Module-specific docs: Check `AGENTS.md` in each module folder
+
+<!-- Source: CLAUDE.md -->
+
+## Architecture
+
+### Directory Structure Philosophy
+
+```
+.ai/                          # Source of truth (committed to git)
+├── AGENTS.md                 # Main AI configuration
+├── config.jsonc              # Installed plugins (JSONC = JSON + comments)
+├── cli                       # Plugin manager (bash script)
+├── commands/                 # Slash commands organized by plugin
+│   ├── core/                 # Core plugin (always installed)
+│   └── <plugin>/             # Other plugins
+├── agents/                   # Specialized AI agents by plugin
+├── context/                  # Project knowledge and guidelines
+├── avatars/                  # AI behavior profiles
+├── media/                    # Audio notifications
+└── scripts/                  # Validation and utilities
+
+.claude/                      # Generated (gitignored)
+├── CLAUDE.md → ../.ai/AGENTS.md
+├── commands/ → ../.ai/commands/
+├── agents/ → ../.ai/agents/
+├── context/ → ../.ai/context/
+├── output-styles/ → ../.ai/avatars/
+└── settings.json             # Copied from templates
+
+.cursor/                      # Generated (gitignored)
+├── rules/main.mdc → ../../.ai/AGENTS.md
+├── rules/<files> → ../../.ai/context/<files>
+├── commands/ → ../.ai/commands/
+└── agents/ → ../.ai/agents/
+
+templates/                    # Source templates (development)
+├── .ai/                      # Base structure + templates
+├── ides/                     # IDE integration scripts
+│   ├── claude/
+│   │   ├── init.sh           # Setup script
+│   │   ├── settings.json     # Claude configuration
+│   │   └── scripts/          # Claude-specific utilities
+│   ├── cursor/
+│   │   └── init.sh
+│   └── CONTRIBUTE.md         # Guide for adding IDEs
+└── plugins/                  # Available plugins
+    ├── core/                 # Always installed
+    ├── git/
+    ├── github/
+    ├── code-quality/
+    ├── image-manipulation/
+    └── lang-*/               # Language-specific plugins
+```
+
+### Key Architectural Decisions
+
+**1. Symlink Strategy**
+- `.claude/` and `.cursor/` folders contain symlinks pointing to `.ai/`
+- Changes to `.ai/` instantly reflect in all configured IDEs
+- Symlinks are gitignored; only `.ai/` is committed
+- Each developer can use different IDEs with the same configuration
+
+**2. Plugin System**
+- Modular: Install only needed plugins
+- Structure: `templates/plugins/<name>/{commands,agents,context}/`
+- Installed plugins listed in `.ai/config.jsonc` (committed)
+- Updates pull latest plugin versions from repository
+
+**3. Configuration Format**
+- JSONC (JSON with Comments) for `.ai/config.jsonc`
+- Enables team documentation within config files
+- Parsed with `jq` if available, regex fallback otherwise
+
+**4. Template Variables**
+- `{{PROJECT_NAME}}` - Replaced during installation
+- `{{FRAMEWORK}}` - Tech stack identifier
+- Applied via `sed` during `install.sh`
+
+<!-- Source: README.md -->
+
+## 📁 Architecture
+
+```
+.ai/                              # Your single source of truth
+├── AGENTS.md                     # Main configuration file
+├── config.jsonc                  # Plugin configuration
+├── cli                           # Plugin manager
+│
+├── commands/                     # Commands (plugins + custom)
+│   ├── core/                     # Core plugin
+│   │   ├── migrate.md
+│   │   ├── command-create.md
+│   │   └── agent-create.md
+│   ├── github/                   # GitHub plugin
+│   │   ├── code-pr-create.md
+│   │   └── code-issue-process.md
+│   ├── git/                      # Git plugin
+│   │   └── code-commit.md
+│   └── my-custom-cmd.md          # Custom command
+│
+├── agents/                       # Agents (plugins + custom)
+│   ├── core/                     # Core plugin
+│   │   ├── fast-coder.md
+│   │   ├── explore-codebase.md
+│   │   └── prompt-engineering.md
+│   ├── github/                   # GitHub plugin
+│   │   └── issue-processor.md
+│   └── my-custom-agent.md        # Custom agent
+│
+├── context/                      # Context (plugins + custom)
+│   ├── core/                     # Core plugin
+│   │   └── STANDARDS.md
+│   ├── lang-node/                # Node.js plugin
+│   │   ├── CODE-STYLE.md
+│   │   ├── DEPENDENCIES.md
+│   │   └── PERFORMANCE.md
+│   └── MY-CUSTOM-DOCS.md         # Custom context
+│
+└── avatars/                      # AI behavior profiles
+    ├── .gitkeep
+    └── my-avatar.md              # Custom avatar
+```

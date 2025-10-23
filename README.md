@@ -214,48 +214,7 @@ git push
 
 **Note:** `.ai/config.jsonc` is committed and shared across the team!
 
-## 📁 Architecture
-
-```
-.ai/                              # Your single source of truth
-├── AGENTS.md                     # Main configuration file
-├── config.jsonc                  # Plugin configuration
-├── cli                           # Plugin manager
-│
-├── commands/                     # Commands (plugins + custom)
-│   ├── core/                     # Core plugin
-│   │   ├── migrate.md
-│   │   ├── command-create.md
-│   │   └── agent-create.md
-│   ├── github/                   # GitHub plugin
-│   │   ├── code-pr-create.md
-│   │   └── code-issue-process.md
-│   ├── git/                      # Git plugin
-│   │   └── code-commit.md
-│   └── my-custom-cmd.md          # Custom command
-│
-├── agents/                       # Agents (plugins + custom)
-│   ├── core/                     # Core plugin
-│   │   ├── fast-coder.md
-│   │   ├── explore-codebase.md
-│   │   └── prompt-engineering.md
-│   ├── github/                   # GitHub plugin
-│   │   └── issue-processor.md
-│   └── my-custom-agent.md        # Custom agent
-│
-├── context/                      # Context (plugins + custom)
-│   ├── core/                     # Core plugin
-│   │   └── STANDARDS.md
-│   ├── lang-node/                # Node.js plugin
-│   │   ├── CODE-STYLE.md
-│   │   ├── DEPENDENCIES.md
-│   │   └── PERFORMANCE.md
-│   └── MY-CUSTOM-DOCS.md         # Custom context
-│
-└── avatars/                      # AI behavior profiles
-    ├── .gitkeep
-    └── my-avatar.md              # Custom avatar
-```
+<!-- This section has been moved to .ai/context/ARCHITECTURE.md -->
 
 ## 🛠️ CLI Commands
 
