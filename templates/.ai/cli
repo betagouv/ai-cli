@@ -29,7 +29,7 @@ else
     PLUGINS_DIR=""
 fi
 
-CONFIG_FILE="$PROJECT_ROOT/.ai-cli.json"
+CONFIG_FILE="$AI_ROOT/config.jsonc"
 
 # Global cleanup trap
 TEMP_PLUGINS_DIR=""
@@ -59,10 +59,10 @@ get_plugins_dir() {
     fi
 }
 
-# Check if .ai-cli.json exists
+# Check if .ai/config.jsonc exists
 check_config() {
     if [ ! -f "$CONFIG_FILE" ]; then
-        echo -e "${RED}❌ No .ai-cli.json found in current directory${NC}"
+        echo -e "${RED}❌ No .ai/config.jsonc found${NC}"
         echo "   Run 'install.sh' first to initialize the project"
         exit 1
     fi
@@ -71,12 +71,15 @@ check_config() {
 # Get installed plugins from config
 get_installed_plugins() {
     if [ -f "$CONFIG_FILE" ]; then
+        # Strip comments from JSONC
+        local config_json=$(grep -v '^\s*//' "$CONFIG_FILE" | sed 's|//.*||g')
+
         # Check if jq is available
         if command -v jq &> /dev/null; then
-            jq -r '.plugins[]' "$CONFIG_FILE" 2>/dev/null || echo ""
+            echo "$config_json" | jq -r '.plugins[]' 2>/dev/null || echo ""
         else
             # Fallback: simple grep/sed parsing
-            grep -o '"plugins":\s*\[.*\]' "$CONFIG_FILE" | sed 's/.*\[//' | sed 's/\].*//' | tr ',' '\n' | tr -d ' "' | grep -v '^$'
+            echo "$config_json" | grep -o '"plugins":\s*\[.*\]' | sed 's/.*\[//' | sed 's/\].*//' | tr ',' '\n' | tr -d ' "' | grep -v '^$'
         fi
     fi
 }
@@ -176,14 +179,33 @@ add_plugin() {
         fi
     fi
 
-    # Update .ai-cli.json
+    # Update .ai/config.jsonc
     if command -v jq &> /dev/null; then
-        # Use jq if available
+        # Strip comments, update with jq, then reconstruct with comments
         tmp=$(mktemp)
-        jq --arg plugin "$plugin_name" '.plugins += [$plugin]' "$CONFIG_FILE" > "$tmp"
-        mv "$tmp" "$CONFIG_FILE"
+        config_json=$(grep -v '^\s*//' "$CONFIG_FILE" | sed 's|//.*||g')
+
+        # Update plugins array
+        echo "$config_json" | jq --arg plugin "$plugin_name" '.plugins += [$plugin]' > "$tmp"
+
+        # Reconstruct JSONC with comments
+        cat > "$CONFIG_FILE" << 'EOF'
+{
+  // AI CLI Configuration
+  // This file is committed to git and shared across the team
+
+  "version": "1.0.0",
+
+  // IDE(s) configured for this project
+EOF
+        echo "  \"ides\": $(jq -c '.ides' "$tmp")," >> "$CONFIG_FILE"
+        echo "" >> "$CONFIG_FILE"
+        echo "  // Installed plugins" >> "$CONFIG_FILE"
+        echo "  \"plugins\": $(jq -c '.plugins' "$tmp")" >> "$CONFIG_FILE"
+        echo "}" >> "$CONFIG_FILE"
+        rm -f "$tmp"
     else
-        # Fallback: manual update
+        # Fallback: manual update (preserves most of the file structure)
         sed -i.bak "s/\"plugins\": \[/\"plugins\": [\"$plugin_name\", /" "$CONFIG_FILE"
         rm -f "${CONFIG_FILE}.bak"
     fi

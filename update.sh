@@ -16,9 +16,9 @@ echo "🔄 AI CLI - Update"
 echo "==================${NC}"
 echo ""
 
-# Check if .ai-cli.json exists
-if [ ! -f ".ai-cli.json" ]; then
-    echo -e "${RED}❌ No .ai-cli.json found in current directory${NC}"
+# Check if .ai/config.jsonc exists
+if [ ! -f ".ai/config.jsonc" ]; then
+    echo -e "${RED}❌ No .ai/config.jsonc found in current directory${NC}"
     echo "   Run install.sh first to initialize the project"
     exit 1
 fi
@@ -40,20 +40,17 @@ fi
 # Read configuration
 echo "Reading configuration..."
 
+# Strip comments from JSONC (lines starting with // and /* */ blocks)
+CONFIG_JSON=$(grep -v '^\s*//' .ai/config.jsonc | sed 's|//.*||g')
+
 if command -v jq &> /dev/null; then
-    # Try new format with ides array first, fallback to old ide field
-    IDES=($(jq -r '.ides[]? // .ide?' .ai-cli.json 2>/dev/null | grep -v "null"))
-    PLUGINS=($(jq -r '.plugins[]' .ai-cli.json))
+    # Use jq to parse the config
+    IDES=($(echo "$CONFIG_JSON" | jq -r '.ides[]?' 2>/dev/null | grep -v "null"))
+    PLUGINS=($(echo "$CONFIG_JSON" | jq -r '.plugins[]' 2>/dev/null))
 else
     # Fallback: simple grep/sed parsing
-    # Try ides array first
-    IDES=($(grep -o '"ides":\s*\[.*\]' .ai-cli.json 2>/dev/null | sed 's/.*\[//' | sed 's/\].*//' | tr ',' '\n' | tr -d ' "' | grep -v '^$'))
-    # If empty, try old ide field
-    if [ ${#IDES[@]} -eq 0 ]; then
-        IDE_SINGLE=$(grep -o '"ide":\s*"[^"]*"' .ai-cli.json | sed 's/.*"ide":\s*"\([^"]*\)".*/\1/')
-        [ -n "$IDE_SINGLE" ] && IDES=("$IDE_SINGLE")
-    fi
-    PLUGINS=($(grep -o '"plugins":\s*\[.*\]' .ai-cli.json | sed 's/.*\[//' | sed 's/\].*//' | tr ',' '\n' | tr -d ' "' | grep -v '^$'))
+    IDES=($(echo "$CONFIG_JSON" | grep -o '"ides":\s*\[.*\]' 2>/dev/null | sed 's/.*\[//' | sed 's/\].*//' | tr ',' '\n' | tr -d ' "' | grep -v '^$'))
+    PLUGINS=($(echo "$CONFIG_JSON" | grep -o '"plugins":\s*\[.*\]' | sed 's/.*\[//' | sed 's/\].*//' | tr ',' '\n' | tr -d ' "' | grep -v '^$'))
 fi
 
 echo -e "${GREEN}✓ Configuration loaded${NC}"

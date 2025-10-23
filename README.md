@@ -56,9 +56,9 @@ curl -fsSL https://raw.githubusercontent.com/betagouv/ai-cli/main/install.sh | b
    - Creates symlinks for Claude Code
    - Creates symlinks for Cursor
 
-5. **Creates `.ai-cli.json`** (gitignored)
-   - Stores your IDE choice and installed plugins
-   - Each dev can have different settings
+5. **Creates `.ai/config.jsonc`** (committed to git)
+   - Stores IDE choices and installed plugins
+   - Shared across the team with JSONC format (supports comments)
 
 ### Result
 
@@ -66,6 +66,8 @@ curl -fsSL https://raw.githubusercontent.com/betagouv/ai-cli/main/install.sh | b
 your-project/
 ├── .ai/                          # ✅ Commit this (source of truth)
 │   ├── AGENTS.md                 # Main config file
+│   ├── config.jsonc              # ✅ Configuration (committed, supports comments)
+│   ├── cli                       # Plugin manager CLI
 │   ├── context/                  # Project knowledge
 │   ├── commands/                 # Slash commands (from plugins)
 │   ├── agents/                   # Specialized agents (from plugins)
@@ -74,14 +76,8 @@ your-project/
 ├── .claude/                      # ❌ Generated (gitignored)
 │   └── [symlinks to .ai/]
 │
-├── .cursor/                      # ❌ Generated (gitignored)
-│   └── [symlinks to .ai/]
-│
-├── .ai-cli.json                  # ❌ User config (gitignored)
-│   └── { "ides": ["claude", "cursor"], "plugins": ["core"] }
-│
-└── .gitignore
-    └── .ai-cli.json              # Added automatically
+└── .cursor/                      # ❌ Generated (gitignored)
+    └── [symlinks to .ai/]
 ```
 
 ## 🔌 Plugin System
@@ -131,7 +127,7 @@ your-project/
 .ai/cli plugins add github
 .ai/cli plugins add code-quality
 
-# Plugins are added to .ai/ and listed in .ai-cli.json
+# Plugins are added to .ai/ and listed in .ai/config.jsonc
 ```
 
 ### Update
@@ -189,7 +185,7 @@ git commit -m "feat: add AI configuration"
 git push
 ```
 
-**Note:** `.ai-cli.json` is gitignored - each dev can choose their own IDE and plugins!
+**Note:** `.ai/config.jsonc` is committed and shared across the team!
 
 ## 📁 Architecture
 
@@ -319,10 +315,8 @@ Scaffold a new feature with EPCT methodology
 # Pull changes
 git pull
 
-# If new plugins are needed, install them
-.ai/cli plugins add lang-typescript
-
-# Everyone can have different .ai-cli.json (gitignored)
+# Configuration is in .ai/config.jsonc - shared across the team
+# If new plugins were added, they'll be automatically available
 ```
 
 ## 🎯 IDE Support

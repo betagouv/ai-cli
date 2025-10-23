@@ -9,6 +9,7 @@ This project uses a unified `.ai/` folder to configure all AI tools (Claude Code
 ```
 .ai/
 ├── AGENTS.md              # This file - main configuration
+├── config.jsonc           # Configuration (committed, supports comments)
 ├── cli                    # Plugin manager CLI
 ├── context/               # Project knowledge and guidelines
 │   ├── ARCHITECTURE.template.md  # System architecture (run /ai-cli-init)

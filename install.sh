@@ -231,8 +231,8 @@ for IDE in "${IDES[@]}"; do
     fi
 done
 
-# Create .ai-cli.json
-echo -e "${BLUE}📝 Creating .ai-cli.json...${NC}"
+# Create .ai/config.jsonc
+echo -e "${BLUE}📝 Creating .ai/config.jsonc...${NC}"
 
 # Build IDEs array for JSON
 IDES_JSON="["
@@ -245,23 +245,22 @@ for i in "${!IDES[@]}"; do
 done
 IDES_JSON+="]"
 
-cat > .ai-cli.json << EOF
+cat > .ai/config.jsonc << EOF
 {
+  // AI CLI Configuration
+  // This file is committed to git and shared across the team
+
   "version": "1.0.0",
+
+  // IDE(s) configured for this project
   "ides": $IDES_JSON,
+
+  // Installed plugins
   "plugins": ["core"]
 }
 EOF
 
-echo -e "${GREEN}✓ Created .ai-cli.json${NC}"
-
-# Add .ai-cli.json to .gitignore
-if ! grep -q "^\.ai-cli\.json" .gitignore 2>/dev/null; then
-    echo "" >> .gitignore
-    echo "# AI CLI configuration (user-specific)" >> .gitignore
-    echo ".ai-cli.json" >> .gitignore
-    echo -e "${GREEN}✓ Added .ai-cli.json to .gitignore${NC}"
-fi
+echo -e "${GREEN}✓ Created .ai/config.jsonc${NC}"
 
 echo ""
 echo -e "${GREEN}✅ AI configuration initialized successfully!${NC}"
@@ -274,7 +273,7 @@ echo ""
 echo -e "${BLUE}Next steps:${NC}"
 echo "  1. Review files in .ai/ folder"
 echo "  2. Run: /ai-cli-init to initialize context files"
-echo "  3. Commit .ai/ to git (but not .ai-cli.json)"
+echo "  3. Commit .ai/ to git (including config.jsonc)"
 echo ""
 echo -e "${BLUE}Add more plugins:${NC}"
 echo "  Run: .ai/cli plugins list"
