@@ -12,10 +12,10 @@ This project uses a unified `.ai/` folder to configure all AI tools (Claude Code
 ├── config.jsonc           # Configuration (committed, supports comments)
 ├── cli                    # Plugin manager CLI
 ├── context/               # Project knowledge and guidelines
-│   ├── ARCHITECTURE.template.md  # System architecture (run /ai-cli-init)
-│   ├── OVERVIEW.template.md      # Project overview (run /ai-cli-init)
-│   ├── TESTING.template.md       # Testing strategy (run /ai-cli-init)
-│   ├── DATABASE.template.md      # Database schema (run /ai-cli-init)
+│   ├── ARCHITECTURE.template.md  # System architecture (run .ai/cli migrate)
+│   ├── OVERVIEW.template.md      # Project overview (run .ai/cli migrate)
+│   ├── TESTING.template.md       # Testing strategy (run .ai/cli migrate)
+│   ├── DATABASE.template.md      # Database schema (run .ai/cli migrate)
 │   ├── GIT-WORKFLOW.md           # Git workflow (from git plugin)
 │   └── <lang>/                   # Language-specific (from lang-* plugins)
 ├── commands/              # Custom slash commands (from plugins)

@@ -210,6 +210,57 @@ EOF
     echo -e "${GREEN}✅ Plugin '$plugin_name' installed successfully${NC}"
 }
 
+# Migrate existing documentation to .ai/context
+migrate() {
+    echo -e "${BLUE}🔄 Documentation Migration${NC}"
+    echo ""
+
+    # Detect configured IDEs by checking for their folders
+    local configured_ides=()
+
+    if [ -d "$PROJECT_ROOT/.claude" ]; then
+        configured_ides+=("Claude Code")
+    fi
+
+    if [ -d "$PROJECT_ROOT/.cursor" ]; then
+        configured_ides+=("Cursor")
+    fi
+
+    if [ ${#configured_ides[@]} -eq 0 ]; then
+        echo -e "${YELLOW}⚠️  No IDE configured yet${NC}"
+        echo ""
+        echo "Please configure an IDE first:"
+        echo -e "  ${GREEN}.ai/cli configure${NC}"
+        echo ""
+        exit 1
+    fi
+
+    echo "This command will help you migrate existing documentation to .ai/context/"
+    echo ""
+    echo -e "${BLUE}Detected IDE(s):${NC}"
+    for ide in "${configured_ides[@]}"; do
+        echo "  - $ide"
+    done
+    echo ""
+
+    echo -e "${YELLOW}To migrate your documentation, run the following command in your IDE:${NC}"
+    echo ""
+    echo -e "  ${GREEN}/migrate${NC}"
+    echo ""
+
+    if [ ${#configured_ides[@]} -gt 1 ]; then
+        echo -e "${BLUE}Note:${NC} You can run this command in any of your configured IDEs."
+        echo ""
+    fi
+
+    echo "This will:"
+    echo "  1. Find all documentation files (README.md, CLAUDE.md, AGENTS.md, .mdc files)"
+    echo "  2. Extract content and organize it into .ai/context/ files"
+    echo "  3. Clean up original files and add breadcrumb comments"
+    echo "  4. Rename CLAUDE.md files to AGENTS.md"
+    echo ""
+}
+
 # Configure IDE symlinks
 configure() {
     echo -e "${BLUE}🔧 IDE Configuration${NC}"
@@ -368,6 +419,7 @@ show_help() {
     echo "ai-cli - AI Configuration CLI"
     echo ""
     echo "Usage:"
+    echo "  ai-cli migrate                   Migrate documentation to .ai/context"
     echo "  ai-cli configure                 Configure IDE symlinks"
     echo "  ai-cli plugins list              List available plugins"
     echo "  ai-cli plugins add <plugin>      Install a plugin"
@@ -378,6 +430,9 @@ show_help() {
 
 # Main command dispatcher
 case "${1:-}" in
+    migrate)
+        migrate
+        ;;
     configure)
         configure
         ;;

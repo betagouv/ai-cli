@@ -44,7 +44,7 @@ curl -fsSL https://raw.githubusercontent.com/betagouv/ai-cli/main/install.sh | b
    - Creates `context/`, `commands/`, `agents/`, `avatars/` folders
 
 2. **Installs core plugin automatically**
-   - Essential commands: `/ai-cli-init`, `/command-create`, `/agent-create`, etc.
+   - Essential commands: `/migrate`, `/command-create`, `/agent-create`, etc.
    - Essential agents: `explore-codebase`, `prompt-engineering`, `fast-coder`
 
 3. **Creates `.ai/config.jsonc`** (committed to git)
@@ -103,7 +103,7 @@ your-project/
 
 | Plugin | Description | Contains |
 |--------|-------------|----------|
-| **core** | Essential commands & agents | `/ai-cli-init`, `/command-create`, `/agent-create`, `/deep-search`, `fast-coder`, `explore-codebase` |
+| **core** | Essential commands & agents | `/migrate`, `/command-create`, `/agent-create`, `/deep-search`, `fast-coder`, `explore-codebase` |
 | **github** | GitHub workflow automation | `/code-issue-process`, `/code-pr-create`, `/code-pr-process-comments` |
 | **code-quality** | Code analysis & optimization | `/code-analyse`, `/code-ci`, `/code-clean`, `/code-explain`, `/code-optimize` |
 | **git** | Git commit automation | `/code-commit` |
@@ -162,11 +162,15 @@ curl -fsSL https://raw.githubusercontent.com/betagouv/ai-cli/main/install.sh | b
 .ai/cli plugins add github
 ```
 
-### 3. Initialize Context Files
+### 3. Migrate Existing Documentation
 
 ```bash
-# In Claude Code or Cursor
-/ai-cli-init
+# Run from terminal
+.ai/cli migrate
+
+# This will show instructions for your IDE
+# Then open your IDE (Claude Code or Cursor) and run:
+/migrate
 ```
 
 This command:
@@ -205,7 +209,7 @@ git push
 │       └── TESTING.md
 │
 ├── commands/                     # From plugins
-│   ├── ai-cli-init.md            # core
+│   ├── migrate.md                # core
 │   ├── command-create.md         # core
 │   ├── agent-create.md           # core
 │   ├── code-pr-create.md         # github
@@ -262,9 +266,10 @@ git push
 
 Once installed, you have access to these commands:
 
-### `/ai-cli-init`
+### `/migrate`
 
-Initialize `.ai/context/` files from existing documentation
+Migrate existing documentation to `.ai/context/` files
+(Run `.ai/cli migrate` from terminal first to see instructions)
 
 ### `/command-create`
 
