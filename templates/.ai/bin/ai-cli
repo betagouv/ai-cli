@@ -13,6 +13,9 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 AI_ROOT="$(dirname "$SCRIPT_DIR")"
 PROJECT_ROOT="$(dirname "$AI_ROOT")"
 
+# Repository information
+REPO_URL="https://github.com/betagouv/ai-cli"
+
 # Detect if running from ai-cli repo or from a project
 if [ -d "$PROJECT_ROOT/templates/plugins" ]; then
     # Running from ai-cli repo (development mode)
@@ -23,6 +26,26 @@ else
 fi
 
 CONFIG_FILE="$PROJECT_ROOT/.ai-cli.json"
+
+# Get plugins directory (download if needed)
+get_plugins_dir() {
+    if [ -n "$PLUGINS_DIR" ]; then
+        # Development mode - use local plugins
+        echo "$PLUGINS_DIR"
+    else
+        # Production mode - download from GitHub
+        if [ -z "$TEMP_PLUGINS_DIR" ]; then
+            TEMP_PLUGINS_DIR=$(mktemp -d)
+            trap "rm -rf $TEMP_PLUGINS_DIR" EXIT
+
+            git clone --depth 1 --quiet "$REPO_URL" "$TEMP_PLUGINS_DIR" 2>/dev/null || {
+                echo -e "${RED}❌ Failed to download plugin list${NC}"
+                exit 1
+            }
+        fi
+        echo "$TEMP_PLUGINS_DIR/templates/plugins"
+    fi
+}
 
 # Check if .ai-cli.json exists
 check_config() {
@@ -54,8 +77,11 @@ list_plugins() {
     # Get installed plugins
     installed_plugins=($(get_installed_plugins))
 
+    # Get plugins directory
+    local plugins_dir=$(get_plugins_dir)
+
     # List all plugins from templates/plugins/
-    for plugin_path in "$PLUGINS_DIR"/*; do
+    for plugin_path in "$plugins_dir"/*; do
         if [ -d "$plugin_path" ]; then
             plugin_name=$(basename "$plugin_path")
 
@@ -90,8 +116,11 @@ add_plugin() {
 
     check_config
 
+    # Get plugins directory
+    local plugins_dir=$(get_plugins_dir)
+
     # Check if plugin exists
-    if [ ! -d "$PLUGINS_DIR/$plugin_name" ]; then
+    if [ ! -d "$plugins_dir/$plugin_name" ]; then
         echo -e "${RED}❌ Plugin '$plugin_name' not found${NC}"
         echo "   Run 'ai-cli plugins list' to see available plugins"
         exit 1
@@ -109,28 +138,28 @@ add_plugin() {
     # Copy plugin files to .ai/
     echo -e "${BLUE}Installing plugin: $plugin_name${NC}"
 
-    if [ -d "$PLUGINS_DIR/$plugin_name/commands" ]; then
+    if [ -d "$plugins_dir/$plugin_name/commands" ]; then
         mkdir -p .ai/commands
-        cp -r "$PLUGINS_DIR/$plugin_name/commands"/* .ai/commands/
+        cp -r "$plugins_dir/$plugin_name/commands"/* .ai/commands/
         echo -e "${GREEN}✓${NC} Copied commands"
     fi
 
-    if [ -d "$PLUGINS_DIR/$plugin_name/agents" ]; then
+    if [ -d "$plugins_dir/$plugin_name/agents" ]; then
         mkdir -p .ai/agents
-        cp -r "$PLUGINS_DIR/$plugin_name/agents"/* .ai/agents/
+        cp -r "$plugins_dir/$plugin_name/agents"/* .ai/agents/
         echo -e "${GREEN}✓${NC} Copied agents"
     fi
 
-    if [ -d "$PLUGINS_DIR/$plugin_name/context" ]; then
+    if [ -d "$plugins_dir/$plugin_name/context" ]; then
         mkdir -p .ai/context
         # For lang-* plugins, copy the context folder with the plugin name
         if [[ "$plugin_name" == lang-* ]]; then
             lang_name="${plugin_name#lang-}"
             mkdir -p ".ai/context/$lang_name"
-            cp -r "$PLUGINS_DIR/$plugin_name/context"/* ".ai/context/$lang_name/"
+            cp -r "$plugins_dir/$plugin_name/context"/* ".ai/context/$lang_name/"
             echo -e "${GREEN}✓${NC} Copied context to .ai/context/$lang_name/"
         else
-            cp -r "$PLUGINS_DIR/$plugin_name/context"/* .ai/context/
+            cp -r "$plugins_dir/$plugin_name/context"/* .ai/context/
             echo -e "${GREEN}✓${NC} Copied context to .ai/context/"
         fi
     fi
@@ -156,11 +185,16 @@ update() {
 
     echo -e "${BLUE}Updating ai-cli...${NC}"
 
-    # Run update.sh
-    if [ -f "$REPO_ROOT/update.sh" ]; then
-        bash "$REPO_ROOT/update.sh"
+    # Download update.sh from GitHub
+    UPDATE_SCRIPT_URL="https://raw.githubusercontent.com/betagouv/ai-cli/main/update.sh"
+    TEMP_UPDATE=$(mktemp)
+
+    if curl -fsSL "$UPDATE_SCRIPT_URL" -o "$TEMP_UPDATE"; then
+        bash "$TEMP_UPDATE"
+        rm -f "$TEMP_UPDATE"
     else
-        echo -e "${RED}❌ update.sh not found${NC}"
+        echo -e "${RED}❌ Failed to download update script${NC}"
+        rm -f "$TEMP_UPDATE"
         exit 1
     fi
 }
