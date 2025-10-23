@@ -44,7 +44,7 @@ curl -fsSL https://raw.githubusercontent.com/betagouv/ai-cli/main/install.sh | b
    - Creates `context/`, `commands/`, `agents/`, `avatars/` folders
 
 2. **Installs core plugin automatically**
-   - Essential commands: `/migrate`, `/command-create`, `/agent-create`, etc.
+   - Essential commands: `/core:migrate`, `/core:command-create`, `/core:agent-create`, etc.
    - Essential agents: `explore-codebase`, `prompt-engineering`, `fast-coder`
 
 3. **Creates `.ai/config.jsonc`** (committed to git)
@@ -124,12 +124,12 @@ your-project/
 
 | Plugin | Description | Contains |
 |--------|-------------|----------|
-| **core** | Essential commands & agents | `/migrate`, `/command-create`, `/agent-create`, `/deep-search`, `fast-coder`, `explore-codebase` |
-| **github** | GitHub workflow automation | `/code-issue-process`, `/code-pr-create`, `/code-pr-process-comments` |
-| **code-quality** | Code analysis & optimization | `/code-analyse`, `/code-ci`, `/code-clean`, `/code-explain`, `/code-optimize` |
-| **git** | Git commit automation | `/code-commit` |
-| **image-manipulation** | Image processing | `/image2md` |
-| **lang-node** | Node.js context & tools | Node.js code style, dependencies, performance, testing, `/code-fix` |
+| **core** | Essential commands & agents | `/core:migrate`, `/core:command-create`, `/core:agent-create`, `/core:deep-search`, `fast-coder`, `explore-codebase` |
+| **github** | GitHub workflow automation | `/github:code-issue-process`, `/github:code-pr-create`, `/github:code-pr-process-comments` |
+| **code-quality** | Code analysis & optimization | `/code-quality:code-analyse`, `/code-quality:code-ci`, `/code-quality:code-clean`, `/code-quality:code-explain`, `/code-quality:code-optimize` |
+| **git** | Git commit automation | `/git:code-commit` |
+| **image-manipulation** | Image processing | `/image-manipulation:image2md` |
+| **lang-node** | Node.js context & tools | Node.js code style, dependencies, performance, testing, `/lang-node:code-fix` |
 | **lang-typescript** | TypeScript context | TypeScript code style and best practices |
 | **lang-go** | Go context | Go code style and idioms |
 | **lang-ruby** | Ruby context | Ruby code style and conventions |
@@ -191,7 +191,7 @@ curl -fsSL https://raw.githubusercontent.com/betagouv/ai-cli/main/install.sh | b
 
 # This will show instructions for your IDE
 # Then open your IDE (Claude Code or Cursor) and run:
-/migrate
+/core:migrate
 ```
 
 This command:
@@ -295,32 +295,32 @@ git push
 
 Once installed, you have access to these commands:
 
-### `/migrate`
+### `/core:migrate`
 
 Migrate existing documentation to `.ai/context/` files
 (Run `.ai/cli migrate` from terminal first to see instructions)
 
-### `/command-create`
+### `/core:command-create`
 
 Create a new slash command
 
-### `/agent-create`
+### `/core:agent-create`
 
 Create a new specialized agent
 
-### `/context-cleanup`
+### `/core:context-cleanup`
 
 Optimize and clean up context files
 
-### `/deep-search`
+### `/core:deep-search`
 
 Perform deep research on a topic
 
-### `/avatar-create`
+### `/core:avatar-create`
 
 Create a new AI personality/output style
 
-### `/feature-create`
+### `/core:feature-create`
 
 Scaffold a new feature with EPCT methodology
 
@@ -336,7 +336,7 @@ Scaffold a new feature with EPCT methodology
 .ai/cli plugins add code-quality
 
 # Commands appear instantly in your IDE
-/code-analyse
+/code-quality:code-analyse
 ```
 
 ### Updating
