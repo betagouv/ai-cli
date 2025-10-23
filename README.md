@@ -39,26 +39,24 @@ curl -fsSL https://raw.githubusercontent.com/betagouv/ai-cli/main/install.sh | b
 
 **What happens:**
 
-1. **Asks which IDE(s) you use**
-   - Claude Code
-   - Cursor
-   - You can select multiple (e.g., "1 2" for both)
-
-2. **Creates `.ai/` structure**
+1. **Creates `.ai/` structure**
    - Sets up `AGENTS.md` (main configuration)
    - Creates `context/`, `commands/`, `agents/`, `avatars/` folders
 
-3. **Installs core plugin automatically**
+2. **Installs core plugin automatically**
    - Essential commands: `/ai-cli-init`, `/command-create`, `/agent-create`, etc.
    - Essential agents: `explore-codebase`, `prompt-engineering`, `fast-coder`
 
-4. **Configures your IDE**
-   - Creates symlinks for Claude Code
-   - Creates symlinks for Cursor
-
-5. **Creates `.ai/config.jsonc`** (committed to git)
-   - Stores IDE choices and installed plugins
+3. **Creates `.ai/config.jsonc`** (committed to git)
+   - Stores installed plugins
    - Shared across the team with JSONC format (supports comments)
+
+4. **Asks which IDE(s) you want to configure**
+   - Claude Code
+   - Cursor
+   - You can select multiple (e.g., "1 2" for both)
+   - Creates symlinks for each selected IDE
+   - Updates `.gitignore` automatically
 
 ### Result
 
@@ -224,6 +222,13 @@ git push
 
 ## 🛠️ CLI Commands
 
+### IDE Configuration
+
+```bash
+# Configure IDE symlinks (can run multiple times to add more IDEs)
+.ai/cli configure
+```
+
 ### Plugin Management
 
 ```bash
@@ -317,7 +322,12 @@ git pull
 
 # Configuration is in .ai/config.jsonc - shared across the team
 # If new plugins were added, they'll be automatically available
+
+# Configure your IDE locally (each dev chooses their own IDE)
+.ai/cli configure
 ```
+
+**Note:** IDE configuration is local (gitignored) - each developer can use different IDEs!
 
 ## 🎯 IDE Support
 

@@ -45,16 +45,13 @@ CONFIG_JSON=$(grep -v '^\s*//' .ai/config.jsonc | sed 's|//.*||g')
 
 if command -v jq &> /dev/null; then
     # Use jq to parse the config
-    IDES=($(echo "$CONFIG_JSON" | jq -r '.ides[]?' 2>/dev/null | grep -v "null"))
     PLUGINS=($(echo "$CONFIG_JSON" | jq -r '.plugins[]' 2>/dev/null))
 else
     # Fallback: simple grep/sed parsing
-    IDES=($(echo "$CONFIG_JSON" | grep -o '"ides":\s*\[.*\]' 2>/dev/null | sed 's/.*\[//' | sed 's/\].*//' | tr ',' '\n' | tr -d ' "' | grep -v '^$'))
     PLUGINS=($(echo "$CONFIG_JSON" | grep -o '"plugins":\s*\[.*\]' | sed 's/.*\[//' | sed 's/\].*//' | tr ',' '\n' | tr -d ' "' | grep -v '^$'))
 fi
 
 echo -e "${GREEN}✓ Configuration loaded${NC}"
-echo "  IDE(s): ${IDES[*]}"
 echo "  Plugins: ${PLUGINS[*]}"
 echo ""
 
@@ -107,24 +104,6 @@ done
 echo -e "${GREEN}✓ Plugins updated${NC}"
 echo ""
 
-# Update IDE configuration
-echo -e "${BLUE}🔄 Updating IDE configuration...${NC}"
-
-for IDE in "${IDES[@]}"; do
-    echo "  Updating: $IDE"
-    INIT_SCRIPT="$TEMP_DIR/templates/ides/$IDE/init.sh"
-    if [ -f "$INIT_SCRIPT" ]; then
-        bash "$INIT_SCRIPT" || {
-            echo -e "${YELLOW}⚠️  $IDE setup failed${NC}"
-        }
-    else
-        echo -e "${YELLOW}⚠️  $IDE init script not found${NC}"
-    fi
-done
-
-echo -e "${GREEN}✓ IDE configuration updated${NC}"
-echo ""
-
 # Update base .ai templates
 echo -e "${BLUE}📝 Updating base templates...${NC}"
 
@@ -152,6 +131,6 @@ echo -e "${GREEN}✅ Update completed successfully!${NC}"
 echo ""
 echo -e "${BLUE}Next steps:${NC}"
 echo "  1. Review changes with: git diff"
-echo "  2. Test your IDE configuration"
+echo "  2. If IDE configuration was updated, run: .ai/cli configure"
 echo "  3. Commit if everything works: git add . && git commit -m 'chore: update ai-cli'"
 echo ""
