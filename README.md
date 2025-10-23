@@ -169,21 +169,9 @@ your-project/
 curl -fsSL https://raw.githubusercontent.com/betagouv/ai-cli/main/install.sh | bash
 ```
 
-### 2. Add Plugins (Optional)
+Or if `.ai` folder is already installed, use `.ai/cli configure`
 
-```bash
-# See what's available
-.ai/cli plugins list
-
-# Install language support
-.ai/cli plugins add lang-node
-.ai/cli plugins add lang-typescript
-
-# Install GitHub integration
-.ai/cli plugins add github
-```
-
-### 3. Migrate Existing Documentation
+### 2. Migrate Existing Documentation
 
 ```bash
 # Run from terminal
@@ -199,6 +187,22 @@ This command:
 - Extracts relevant sections
 - Organizes them into `.ai/context/` files
 - Removes extracted content from original files
+
+
+### 3. Add Plugins (Optional)
+
+```bash
+# See what's available
+.ai/cli plugins list
+
+# Install language support
+.ai/cli plugins add lang-node
+.ai/cli plugins add lang-typescript
+
+# Install GitHub integration
+.ai/cli plugins add github
+```
+
 
 ### 4. Commit Your Configuration
 

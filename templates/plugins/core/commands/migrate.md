@@ -32,7 +32,8 @@ You are a documentation extraction specialist. Extract content from existing pro
      - Read the template file
      - Write same content to file without `.template` suffix
      - Example: `ARCHITECTURE.template.md` → `ARCHITECTURE.md`
-   - **PRESERVE**: Keep template files as-is for future use
+     - **DELETE**: Remove the `.template.md` file after successful copy
+   - **CLEANUP**: All `.template.md` files should be deleted after migration
 
 3. **EXTRACT CONTENT**: Map documentation to context files
    - Analyze each documentation file for sections
@@ -132,6 +133,7 @@ You are a documentation extraction specialist. Extract content from existing pro
 
 7. **VERIFY**: Check extraction results
    - List all context files created/updated
+   - Show which template files were deleted
    - Show which documentation files were processed
    - Show which sections were removed from originals
    - Show which CLAUDE.md files were renamed to AGENTS.md
@@ -185,6 +187,11 @@ If content doesn't match any template:
 
 After extraction, report:
 ```
+✓ Template Files Deleted:
+  - .ai/context/ARCHITECTURE.template.md (copied to ARCHITECTURE.md, then deleted)
+  - .ai/context/CODING-STYLE.template.md (copied to CODING-STYLE.md, then deleted)
+  - .ai/context/OVERVIEW.template.md (copied to OVERVIEW.md, then deleted)
+
 ✓ Processed Files:
   - README.md (3 sections extracted, 3 sections removed)
   - .claude/CLAUDE.md (5 sections extracted, 5 sections removed)
