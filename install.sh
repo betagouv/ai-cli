@@ -9,11 +9,11 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 # Repository information
-REPO_URL="https://github.com/betagouv/ai-cli"
+REPO_URL="https://github.com/betagouv/agnostic-ai"
 
 echo -e "${BLUE}"
-echo "🤖 AI CLI - Simple AI Configuration Setup"
-echo "==========================================${NC}"
+echo "🤖 AI CLI - Unified Configuration for AI Tools"
+echo "===============================================${NC}"
 echo ""
 
 # Check dependencies
@@ -49,12 +49,12 @@ fi
 if [ -d ".ai" ]; then
     echo -e "${YELLOW}⚠️  .ai folder already exists${NC}"
     echo ""
-    echo -e "${BLUE}AI CLI is already installed in this project.${NC}"
+    echo -e "${BLUE}AI CLI (unified AI configuration) is already installed in this project.${NC}"
     echo ""
     echo "To manage your installation, use:"
     echo -e "  ${GREEN}.ai/cli plugins list${NC}       - List available plugins"
     echo -e "  ${GREEN}.ai/cli plugins add <name>${NC} - Install a plugin"
-    echo -e "  ${GREEN}.ai/cli update${NC}             - Update ai-cli and plugins"
+    echo -e "  ${GREEN}.ai/cli update${NC}             - Update agnostic-ai and plugins"
     echo ""
     echo -e "${YELLOW}⚠️  Re-installing will overwrite your configuration!${NC}"
     echo ""
@@ -156,8 +156,8 @@ echo -e "${BLUE}📝 Creating .ai/config.jsonc...${NC}"
 
 cat > .ai/config.jsonc << 'EOF'
 {
-  // AI CLI Configuration
-  // This file is committed to git and shared across the team
+  // Unified AI Configuration
+  // This file is committed to git and shared across the team and all AI tools
 
   "version": "1.0.0",
 
@@ -191,7 +191,7 @@ echo "  .ai/cli plugins list             - List available plugins"
 echo "  .ai/cli plugins add <name>       - Install a plugin"
 echo ""
 echo -e "${BLUE}Update:${NC}"
-echo "  .ai/cli update                   - Update ai-cli and plugins"
+echo "  .ai/cli update                   - Update agnostic-ai and plugins"
 echo ""
 echo -e "${BLUE}Configure IDEs:${NC}"
 echo "  .ai/cli configure                - Set up IDE symlinks (run again to add more IDEs)"

@@ -1,8 +1,8 @@
-# AI CLI - Plugin-Based AI Configuration
+# Agnostic AI - Unified Configuration for AI Coding Tools
 
 > **🚀 Ultra-Simple Setup** - One command, choose your IDE, and you're ready to code with AI!
 
-> Unified AI configuration with modular plugins - install only what you need
+> Share one AI configuration across all your AI coding tools - write once, use everywhere
 
 ## 🎯 The Problem
 
@@ -17,7 +17,7 @@ Modern development teams face a configuration nightmare when using AI assistants
 
 ## ✨ The Solution
 
-**AI CLI provides a single `.ai/` folder as your source of truth**, with a **modular plugin system** to install only what you need.
+**AI CLI provides a single `.ai/` folder that works with all AI coding tools**, with a **modular plugin system** to install only what you need.
 
 ### Key Benefits
 
@@ -25,7 +25,7 @@ Modern development teams face a configuration nightmare when using AI assistants
 - ✅ **Modular plugins** - Install only what you need
 - ✅ **Write once, use everywhere** - One configuration, all IDEs
 - ✅ **Git-friendly** - Commit only `.ai/`, configs are generated
-- ✅ **Easy updates** - `ai-cli update` to get latest
+- ✅ **Easy updates** - `agnostic-ai update` to get latest
 - ✅ **Team synchronization** - Everyone gets the same setup
 - ✅ **Works everywhere** - Any bash system (macOS, Linux, WSL)
 
@@ -34,7 +34,7 @@ Modern development teams face a configuration nightmare when using AI assistants
 ### One-Command Setup
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/betagouv/ai-cli/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/betagouv/agnostic-ai/main/install.sh | bash
 ```
 
 **What happens:**
@@ -152,7 +152,7 @@ your-project/
 ### Update
 
 ```bash
-# Update ai-cli and all installed plugins
+# Update agnostic-ai and all installed plugins
 .ai/cli update
 
 # Checks git status first (must be clean)
@@ -166,7 +166,7 @@ your-project/
 ### 1. Install
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/betagouv/ai-cli/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/betagouv/agnostic-ai/main/install.sh | bash
 ```
 
 Or if `.ai` folder is already installed, use `.ai/cli configure`
@@ -284,7 +284,7 @@ git push
 ### Update
 
 ```bash
-# Update ai-cli and installed plugins
+# Update agnostic-ai and installed plugins
 .ai/cli update
 ```
 
@@ -393,15 +393,19 @@ templates/plugins/my-plugin/
     └── MY-CONTEXT.md
 ```
 
-## 📚 Getting Started with AI Development
-
-To get the most out of this project and AI-assisted development, we recommend getting proper training in AI development practices.
-
-**We recommend [Melvynx's AI Blueprint training](https://aiblueprint.dev/?ref=aJmHMnVnfaK)** to understand how to best work with AI assistants.
-
 ## 🙏 Acknowledgments
 
+**Original Idea & Development**
+
+This project was created by:
+- [Martin Ratinaud](https://github.com/martinratinaud) - Original concept and lead developer
+- [Maxime Dréau](https://github.com/totakoko) - Co-creator and architecture
+
+**Inspiration**
+
 This project was heavily inspired by [@Melvynx](https://github.com/Melvynx)'s excellent [aiblueprint](https://github.com/Melvynx/aiblueprint). Thank you!
+
+To get the most out of this project and AI-assisted development, we recommend [Melvynx's AI Blueprint training](https://aiblueprint.dev/?ref=aJmHMnVnfaK) to understand how to best work with AI assistants.
 
 ## 📄 License
 
@@ -409,10 +413,10 @@ MIT
 
 ## 💬 Support
 
-- **Issues**: [GitHub Issues](https://github.com/betagouv/ai-cli/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/betagouv/ai-cli/discussions)
+- **Issues**: [GitHub Issues](https://github.com/betagouv/agnostic-ai/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/betagouv/agnostic-ai/discussions)
 - **Mattermost**: [Beta Gouv AI Channel](https://mattermost.incubateur.net/betagouv/channels/domaine-dev-ai-workflows)
 
 ---
 
-**Made with ❤️ for developers who want simple, modular AI configuration**
+**Made with ❤️ for developers who want to share AI configuration across all their AI coding tools**

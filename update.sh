@@ -9,11 +9,11 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 # Repository information
-REPO_URL="https://github.com/betagouv/ai-cli"
+REPO_URL="https://github.com/betagouv/agnostic-ai"
 
 echo -e "${BLUE}"
-echo "🔄 AI CLI - Update"
-echo "==================${NC}"
+echo "🔄 AI CLI - Update Unified Configuration"
+echo "=========================================${NC}"
 echo ""
 
 # Check if .ai/config.jsonc exists
@@ -133,5 +133,5 @@ echo ""
 echo -e "${BLUE}Next steps:${NC}"
 echo "  1. Review changes with: git diff"
 echo "  2. If IDE configuration was updated, run: .ai/cli configure"
-echo "  3. Commit if everything works: git add . && git commit -m 'chore: update ai-cli'"
+echo "  3. Commit if everything works: git add . && git commit -m 'chore: update agnostic-ai'"
 echo ""

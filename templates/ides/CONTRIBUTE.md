@@ -4,7 +4,7 @@
 
 ## 🎯 Overview
 
-This guide explains how to add support for a new IDE to the betagouv-ai-cli system. Each IDE needs:
+This guide explains how to add support for a new IDE to the agnostic-ai system. Each IDE needs:
 1. An `init.sh` script to set up configuration
 2. A `.gitignore` file to ignore generated files
 3. Documentation of the IDE's configuration format
@@ -402,7 +402,7 @@ done
 ## 📞 Questions?
 
 1. Check existing implementations: `claude/init.sh`, `cursor/init.sh`
-2. Open an issue: [GitHub Issues](https://github.com/betagouv/ai-cli/issues)
+2. Open an issue: [GitHub Issues](https://github.com/betagouv/agnostic-ai/issues)
 3. Test with `bash -x init.sh` for debug output
 
 ## ✅ Checklist
