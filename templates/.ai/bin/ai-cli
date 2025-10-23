@@ -17,15 +17,28 @@ PROJECT_ROOT="$(dirname "$AI_ROOT")"
 REPO_URL="https://github.com/betagouv/ai-cli"
 
 # Detect if running from ai-cli repo or from a project
+# Check if we're in the ai-cli repo by looking for templates/plugins in parent directories
 if [ -d "$PROJECT_ROOT/templates/plugins" ]; then
-    # Running from ai-cli repo (development mode)
+    # Running from ai-cli repo (development mode) - installed in a project
     PLUGINS_DIR="$PROJECT_ROOT/templates/plugins"
+elif [ -d "$PROJECT_ROOT/../plugins" ] && [ -d "$PROJECT_ROOT/../.ai" ]; then
+    # Running from ai-cli repo (development mode) - running from templates/.ai/bin
+    PLUGINS_DIR="$PROJECT_ROOT/../plugins"
 else
     # Running from a user project - plugins need to be fetched
     PLUGINS_DIR=""
 fi
 
 CONFIG_FILE="$PROJECT_ROOT/.ai-cli.json"
+
+# Global cleanup trap
+TEMP_PLUGINS_DIR=""
+cleanup() {
+    if [ -n "$TEMP_PLUGINS_DIR" ] && [ -d "$TEMP_PLUGINS_DIR" ]; then
+        rm -rf "$TEMP_PLUGINS_DIR"
+    fi
+}
+trap cleanup EXIT
 
 # Get plugins directory (download if needed)
 get_plugins_dir() {
@@ -36,7 +49,6 @@ get_plugins_dir() {
         # Production mode - download from GitHub
         if [ -z "$TEMP_PLUGINS_DIR" ]; then
             TEMP_PLUGINS_DIR=$(mktemp -d)
-            trap "rm -rf $TEMP_PLUGINS_DIR" EXIT
 
             git clone --depth 1 --quiet "$REPO_URL" "$TEMP_PLUGINS_DIR" 2>/dev/null || {
                 echo -e "${RED}❌ Failed to download plugin list${NC}"
