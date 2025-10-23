@@ -90,7 +90,7 @@ your-project/
 
 ```bash
 # List all available plugins
-bin/ai-cli plugins list
+.ai/bin/ai-cli plugins list
 
 # Output:
 #   ✓ core (installed)
@@ -124,12 +124,12 @@ bin/ai-cli plugins list
 
 ```bash
 # Install a plugin
-bin/ai-cli plugins add lang-node
+.ai/bin/ai-cli plugins add lang-node
 
 # Install multiple plugins
-bin/ai-cli plugins add lang-typescript
-bin/ai-cli plugins add github
-bin/ai-cli plugins add code-quality
+.ai/bin/ai-cli plugins add lang-typescript
+.ai/bin/ai-cli plugins add github
+.ai/bin/ai-cli plugins add code-quality
 
 # Plugins are added to .ai/ and listed in .ai-cli.json
 ```
@@ -138,7 +138,7 @@ bin/ai-cli plugins add code-quality
 
 ```bash
 # Update ai-cli and all installed plugins
-bin/ai-cli update
+.ai/bin/ai-cli update
 
 # Checks git status first (must be clean)
 # Downloads latest version
@@ -158,14 +158,14 @@ curl -fsSL https://raw.githubusercontent.com/betagouv/ai-cli/main/install.sh | b
 
 ```bash
 # See what's available
-bin/ai-cli plugins list
+.ai/bin/ai-cli plugins list
 
 # Install language support
-bin/ai-cli plugins add lang-node
-bin/ai-cli plugins add lang-typescript
+.ai/bin/ai-cli plugins add lang-node
+.ai/bin/ai-cli plugins add lang-typescript
 
 # Install GitHub integration
-bin/ai-cli plugins add github
+.ai/bin/ai-cli plugins add github
 ```
 
 ### 3. Initialize Context Files
@@ -232,29 +232,29 @@ git push
 
 ```bash
 # List available plugins
-bin/ai-cli plugins list
+.ai/bin/ai-cli plugins list
 
 # Install a plugin
-bin/ai-cli plugins add <plugin-name>
+.ai/bin/ai-cli plugins add <plugin-name>
 
 # Examples
-bin/ai-cli plugins add lang-node
-bin/ai-cli plugins add github
-bin/ai-cli plugins add code-quality
+.ai/bin/ai-cli plugins add lang-node
+.ai/bin/ai-cli plugins add github
+.ai/bin/ai-cli plugins add code-quality
 ```
 
 ### Update
 
 ```bash
 # Update ai-cli and installed plugins
-bin/ai-cli update
+.ai/bin/ai-cli update
 ```
 
 ### Help
 
 ```bash
 # Show help
-bin/ai-cli help
+.ai/bin/ai-cli help
 ```
 
 ## 📚 Core Plugin Commands
@@ -295,10 +295,10 @@ Scaffold a new feature with EPCT methodology
 
 ```bash
 # Discover available plugins
-bin/ai-cli plugins list
+.ai/bin/ai-cli plugins list
 
 # Install what you need
-bin/ai-cli plugins add code-quality
+.ai/bin/ai-cli plugins add code-quality
 
 # Commands appear instantly in your IDE
 /code-analyse
@@ -308,7 +308,7 @@ bin/ai-cli plugins add code-quality
 
 ```bash
 # Get latest updates
-bin/ai-cli update
+.ai/bin/ai-cli update
 
 # Your installed plugins are automatically updated
 ```
@@ -320,7 +320,7 @@ bin/ai-cli update
 git pull
 
 # If new plugins are needed, install them
-bin/ai-cli plugins add lang-typescript
+.ai/bin/ai-cli plugins add lang-typescript
 
 # Everyone can have different .ai-cli.json (gitignored)
 ```

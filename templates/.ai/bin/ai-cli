@@ -10,9 +10,19 @@ NC='\033[0m' # No Color
 
 # Paths
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(dirname "$SCRIPT_DIR")"
-PLUGINS_DIR="$REPO_ROOT/templates/plugins"
-CONFIG_FILE=".ai-cli.json"
+AI_ROOT="$(dirname "$SCRIPT_DIR")"
+PROJECT_ROOT="$(dirname "$AI_ROOT")"
+
+# Detect if running from ai-cli repo or from a project
+if [ -d "$PROJECT_ROOT/templates/plugins" ]; then
+    # Running from ai-cli repo (development mode)
+    PLUGINS_DIR="$PROJECT_ROOT/templates/plugins"
+else
+    # Running from a user project - plugins need to be fetched
+    PLUGINS_DIR=""
+fi
+
+CONFIG_FILE="$PROJECT_ROOT/.ai-cli.json"
 
 # Check if .ai-cli.json exists
 check_config() {

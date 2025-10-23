@@ -142,6 +142,12 @@ if [ -d "$TEMP_DIR/templates/.ai/scripts" ]; then
     cp -r "$TEMP_DIR/templates/.ai/scripts"/* .ai/scripts/ 2>/dev/null || true
 fi
 
+# Update CLI
+if [ -f "$TEMP_DIR/templates/.ai/bin/ai-cli" ]; then
+    cp "$TEMP_DIR/templates/.ai/bin/ai-cli" .ai/bin/ai-cli
+    chmod +x .ai/bin/ai-cli
+fi
+
 echo -e "${GREEN}✓ Base templates updated${NC}"
 echo ""
 
