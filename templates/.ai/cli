@@ -10,7 +10,7 @@ NC='\033[0m' # No Color
 
 # Paths
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-AI_ROOT="$(dirname "$SCRIPT_DIR")"
+AI_ROOT="$SCRIPT_DIR"
 PROJECT_ROOT="$(dirname "$AI_ROOT")"
 
 # Repository information
@@ -22,7 +22,7 @@ if [ -d "$PROJECT_ROOT/templates/plugins" ]; then
     # Running from ai-cli repo (development mode) - installed in a project
     PLUGINS_DIR="$PROJECT_ROOT/templates/plugins"
 elif [ -d "$PROJECT_ROOT/../plugins" ] && [ -d "$PROJECT_ROOT/../.ai" ]; then
-    # Running from ai-cli repo (development mode) - running from templates/.ai/bin
+    # Running from ai-cli repo (development mode) - running from templates/.ai
     PLUGINS_DIR="$PROJECT_ROOT/../plugins"
 else
     # Running from a user project - plugins need to be fetched

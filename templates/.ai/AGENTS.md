@@ -9,8 +9,7 @@ This project uses a unified `.ai/` folder to configure all AI tools (Claude Code
 ```
 .ai/
 ├── AGENTS.md              # This file - main configuration
-├── bin/
-│   └── ai-cli             # Plugin manager CLI
+├── cli                    # Plugin manager CLI
 ├── context/               # Project knowledge and guidelines
 │   ├── ARCHITECTURE.template.md  # System architecture (run /ai-cli-init)
 │   ├── OVERVIEW.template.md      # Project overview (run /ai-cli-init)
@@ -25,7 +24,7 @@ This project uses a unified `.ai/` folder to configure all AI tools (Claude Code
 ```
 
 **Note**: Language-specific contexts (node/, typescript/, etc.) are added via plugins.
-Run `.ai/bin/ai-cli plugins add lang-node` to add Node.js context, for example.
+Run `.ai/cli plugins add lang-node` to add Node.js context, for example.
 
 ## 🎯 How to Use This Configuration
 
