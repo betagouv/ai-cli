@@ -84,22 +84,19 @@ your-project/
 │
 ├── .claude/                      # ❌ Generated (gitignored)
 │   ├── CLAUDE.md                 # → .ai/AGENTS.md
-│   ├── commands/
-│   │   ├── core/                 # → .ai/commands/core/
-│   │   └── git/                  # → .ai/commands/git/
-│   ├── agents/
-│   │   └── core/                 # → .ai/agents/core/
+│   ├── commands/                 # → .ai/commands/
+│   ├── agents/                   # → .ai/agents/
+│   ├── context/                  # → .ai/context/
 │   └── output-styles/            # → .ai/avatars/
 │
 └── .cursor/                      # ❌ Generated (gitignored)
-    ├── rules/
+    ├── rules/                    # Directory with symlinks
     │   ├── main.mdc              # → .ai/AGENTS.md
     │   ├── core/                 # → .ai/context/core/
-    │   └── lang-node/            # → .ai/context/lang-node/
-    ├── commands/
-    │   └── core/                 # → .ai/commands/core/
-    └── agents/
-        └── core/                 # → .ai/agents/core/
+    │   ├── lang-node/            # → .ai/context/lang-node/
+    │   └── *.md                  # → .ai/context/*.md
+    ├── commands/                 # → .ai/commands/
+    └── agents/                   # → .ai/agents/
 ```
 
 ## 🔌 Plugin System

@@ -162,32 +162,27 @@ create_symlinks() {
         echo -e "${GREEN}✓${NC} Linked .cursor/rules/main.mdc → .ai/AGENTS.md"
     fi
 
-    # Get installed plugins
-    local plugins=($(get_installed_plugins))
+    # Symlink all content from .ai/context/ into .cursor/rules/
+    if [ -d ".ai/context" ]; then
+        for item in .ai/context/*; do
+            if [ -e "$item" ]; then
+                item_name=$(basename "$item")
+                ln -sf "../../.ai/context/$item_name" ".cursor/rules/$item_name"
+                echo -e "${GREEN}✓${NC} Linked .cursor/rules/$item_name → .ai/context/$item_name"
+            fi
+        done
+    fi
 
-    # Symlink each plugin's context into .cursor/rules/
-    for plugin in "${plugins[@]}"; do
-        if [ -d ".ai/context/$plugin" ]; then
-            ln -sf "../../../.ai/context/$plugin" ".cursor/rules/$plugin"
-            echo -e "${GREEN}✓${NC} Linked .cursor/rules/$plugin/ → .ai/context/$plugin/"
-        fi
-    done
+    # Symlink entire commands and agents directories
+    if [ -d ".ai/commands" ]; then
+        ln -sf ../.ai/commands .cursor/commands
+        echo -e "${GREEN}✓${NC} Linked .cursor/commands/ → .ai/commands/"
+    fi
 
-    # Create base directories for commands and agents
-    mkdir -p .cursor/commands .cursor/agents
-
-    # Symlink each plugin's commands and agents
-    for plugin in "${plugins[@]}"; do
-        if [ -d ".ai/commands/$plugin" ]; then
-            ln -sf "../../.ai/commands/$plugin" ".cursor/commands/$plugin"
-            echo -e "${GREEN}✓${NC} Linked .cursor/commands/$plugin/ → .ai/commands/$plugin/"
-        fi
-
-        if [ -d ".ai/agents/$plugin" ]; then
-            ln -sf "../../.ai/agents/$plugin" ".cursor/agents/$plugin"
-            echo -e "${GREEN}✓${NC} Linked .cursor/agents/$plugin/ → .ai/agents/$plugin/"
-        fi
-    done
+    if [ -d ".ai/agents" ]; then
+        ln -sf ../.ai/agents .cursor/agents
+        echo -e "${GREEN}✓${NC} Linked .cursor/agents/ → .ai/agents/"
+    fi
 }
 
 print_summary() {
@@ -196,9 +191,9 @@ print_summary() {
     echo ""
     echo "Structure created:"
     echo "  .cursor/rules/main.mdc           → .ai/AGENTS.md"
-    echo "  .cursor/rules/<plugin>/          → .ai/context/<plugin>/"
-    echo "  .cursor/commands/<plugin>/       → .ai/commands/<plugin>/"
-    echo "  .cursor/agents/<plugin>/         → .ai/agents/<plugin>/"
+    echo "  .cursor/rules/*                  → .ai/context/* (all files/folders)"
+    echo "  .cursor/commands/                → .ai/commands/"
+    echo "  .cursor/agents/                  → .ai/agents/"
     echo ""
     echo "✨ Dynamic updates: Changes to .ai/ are immediately available!"
     echo ""

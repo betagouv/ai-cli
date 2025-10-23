@@ -136,38 +136,23 @@ create_symlinks() {
         echo -e "${GREEN}✓${NC} Linked .claude/CLAUDE.md → .ai/AGENTS.md"
     fi
 
-    # Create base directories
-    mkdir -p .claude/commands .claude/agents .claude/output-styles
+    # Symlink entire directories
+    if [ -d ".ai/commands" ]; then
+        ln -sf ../.ai/commands .claude/commands
+        echo -e "${GREEN}✓${NC} Linked .claude/commands/ → .ai/commands/"
+    fi
 
-    # Get installed plugins
-    local plugins=($(get_installed_plugins))
+    if [ -d ".ai/agents" ]; then
+        ln -sf ../.ai/agents .claude/agents
+        echo -e "${GREEN}✓${NC} Linked .claude/agents/ → .ai/agents/"
+    fi
 
-    # Symlink each plugin's subdirectories
-    for plugin in "${plugins[@]}"; do
-        # Link commands from this plugin
-        if [ -d ".ai/commands/$plugin" ]; then
-            ln -sf "../../.ai/commands/$plugin" ".claude/commands/$plugin"
-            echo -e "${GREEN}✓${NC} Linked .claude/commands/$plugin/ → .ai/commands/$plugin/"
-        fi
+    if [ -d ".ai/context" ]; then
+        ln -sf ../.ai/context .claude/context
+        echo -e "${GREEN}✓${NC} Linked .claude/context/ → .ai/context/"
+    fi
 
-        # Link agents from this plugin
-        if [ -d ".ai/agents/$plugin" ]; then
-            ln -sf "../../.ai/agents/$plugin" ".claude/agents/$plugin"
-            echo -e "${GREEN}✓${NC} Linked .claude/agents/$plugin/ → .ai/agents/$plugin/"
-        fi
-
-        # Link context from this plugin (if any)
-        if [ -d ".ai/context/$plugin" ]; then
-            mkdir -p .claude/context
-            ln -sf "../../.ai/context/$plugin" ".claude/context/$plugin"
-            echo -e "${GREEN}✓${NC} Linked .claude/context/$plugin/ → .ai/context/$plugin/"
-        fi
-    done
-
-    # Symlink avatars folder (output-styles for Claude Code)
     if [ -d ".ai/avatars" ]; then
-        # Remove the directory first to allow symlinking
-        rmdir .claude/output-styles 2>/dev/null || true
         ln -sf ../.ai/avatars .claude/output-styles
         echo -e "${GREEN}✓${NC} Linked .claude/output-styles/ → .ai/avatars/"
     fi
@@ -194,9 +179,9 @@ print_summary() {
     echo ""
     echo "Structure created:"
     echo "  .claude/CLAUDE.md                → .ai/AGENTS.md"
-    echo "  .claude/commands/<plugin>/       → .ai/commands/<plugin>/"
-    echo "  .claude/agents/<plugin>/         → .ai/agents/<plugin>/"
-    echo "  .claude/context/<plugin>/        → .ai/context/<plugin>/"
+    echo "  .claude/commands/                → .ai/commands/"
+    echo "  .claude/agents/                  → .ai/agents/"
+    echo "  .claude/context/                 → .ai/context/"
     echo "  .claude/output-styles/           → .ai/avatars/"
     echo "  .claude/settings.json            (copied from templates)"
     echo "  .ai/scripts/claude/              (Claude-specific scripts)"
