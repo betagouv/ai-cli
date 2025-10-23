@@ -66,16 +66,40 @@ your-project/
 │   ├── AGENTS.md                 # Main config file
 │   ├── config.jsonc              # ✅ Configuration (committed, supports comments)
 │   ├── cli                       # Plugin manager CLI
-│   ├── context/                  # Project knowledge
-│   ├── commands/                 # Slash commands (from plugins)
-│   ├── agents/                   # Specialized agents (from plugins)
+│   ├── commands/                 # Commands (plugins + custom)
+│   │   ├── core/                 # Core plugin
+│   │   ├── git/                  # Git plugin
+│   │   ├── github/               # GitHub plugin
+│   │   └── my-command.md         # Custom command at root
+│   ├── agents/                   # Agents (plugins + custom)
+│   │   ├── core/                 # Core plugin
+│   │   ├── github/               # GitHub plugin
+│   │   └── my-agent.md           # Custom agent at root
+│   ├── context/                  # Context (plugins + custom)
+│   │   ├── core/                 # Core plugin
+│   │   ├── lang-node/            # Lang-node plugin
+│   │   └── my-context.mdc        # Custom context at root
 │   └── avatars/                  # AI behavior profiles
+│       └── my-avatar.md          # Custom avatar
 │
 ├── .claude/                      # ❌ Generated (gitignored)
-│   └── [symlinks to .ai/]
+│   ├── CLAUDE.md                 # → .ai/AGENTS.md
+│   ├── commands/
+│   │   ├── core/                 # → .ai/commands/core/
+│   │   └── git/                  # → .ai/commands/git/
+│   ├── agents/
+│   │   └── core/                 # → .ai/agents/core/
+│   └── output-styles/            # → .ai/avatars/
 │
 └── .cursor/                      # ❌ Generated (gitignored)
-    └── [symlinks to .ai/]
+    ├── rules/
+    │   ├── main.mdc              # → .ai/AGENTS.md
+    │   ├── core/                 # → .ai/context/core/
+    │   └── lang-node/            # → .ai/context/lang-node/
+    ├── commands/
+    │   └── core/                 # → .ai/commands/core/
+    └── agents/
+        └── core/                 # → .ai/agents/core/
 ```
 
 ## 🔌 Plugin System
@@ -194,34 +218,42 @@ git push
 ```
 .ai/                              # Your single source of truth
 ├── AGENTS.md                     # Main configuration file
+├── config.jsonc                  # Plugin configuration
+├── cli                           # Plugin manager
 │
-├── context/                      # Project knowledge base
-│   ├── ARCHITECTURE.md           # System design, tech stack
-│   ├── OVERVIEW.md               # Project description
-│   ├── TESTING.md                # Testing strategy
-│   ├── DATABASE.md               # Schema, queries
-│   ├── GIT-WORKFLOW.md           # Branching, commits, PRs
-│   │
-│   └── node/                     # From lang-node plugin
-│       ├── CODE-STYLE.md
-│       ├── DEPENDENCIES.md
-│       ├── PERFORMANCE.md
-│       └── TESTING.md
+├── commands/                     # Commands (plugins + custom)
+│   ├── core/                     # Core plugin
+│   │   ├── migrate.md
+│   │   ├── command-create.md
+│   │   └── agent-create.md
+│   ├── github/                   # GitHub plugin
+│   │   ├── code-pr-create.md
+│   │   └── code-issue-process.md
+│   ├── git/                      # Git plugin
+│   │   └── code-commit.md
+│   └── my-custom-cmd.md          # Custom command
 │
-├── commands/                     # From plugins
-│   ├── migrate.md                # core
-│   ├── command-create.md         # core
-│   ├── agent-create.md           # core
-│   ├── code-pr-create.md         # github
-│   └── code-commit.md            # git
+├── agents/                       # Agents (plugins + custom)
+│   ├── core/                     # Core plugin
+│   │   ├── fast-coder.md
+│   │   ├── explore-codebase.md
+│   │   └── prompt-engineering.md
+│   ├── github/                   # GitHub plugin
+│   │   └── issue-processor.md
+│   └── my-custom-agent.md        # Custom agent
 │
-├── agents/                       # From plugins
-│   ├── fast-coder.md             # core (fast edits)
-│   ├── explore-codebase.md       # core
-│   └── prompt-engineering.md     # core
+├── context/                      # Context (plugins + custom)
+│   ├── core/                     # Core plugin
+│   │   └── STANDARDS.md
+│   ├── lang-node/                # Node.js plugin
+│   │   ├── CODE-STYLE.md
+│   │   ├── DEPENDENCIES.md
+│   │   └── PERFORMANCE.md
+│   └── MY-CUSTOM-DOCS.md         # Custom context
 │
 └── avatars/                      # AI behavior profiles
-    └── .gitkeep
+    ├── .gitkeep
+    └── my-avatar.md              # Custom avatar
 ```
 
 ## 🛠️ CLI Commands

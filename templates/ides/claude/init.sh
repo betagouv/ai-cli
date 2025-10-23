@@ -48,6 +48,24 @@ backup_existing_config() {
     echo -e "${GREEN}✓${NC} Backup created at $BACKUP_DIR"
 }
 
+get_installed_plugins() {
+    if [ ! -f ".ai/config.jsonc" ]; then
+        echo ""
+        return
+    fi
+
+    # Strip comments from JSONC
+    local config_json=$(grep -v '^\s*//' ".ai/config.jsonc" | sed 's|//.*||g')
+
+    # Check if jq is available
+    if command -v jq &> /dev/null; then
+        echo "$config_json" | jq -r '.plugins[]' 2>/dev/null || echo ""
+    else
+        # Fallback: simple grep/sed parsing
+        echo "$config_json" | grep -o '"plugins":\s*\[.*\]' | sed 's/.*\[//' | sed 's/\].*//' | tr ',' '\n' | tr -d ' "' | grep -v '^$'
+    fi
+}
+
 preserve_user_customizations() {
     if [ ! -d ".claude" ]; then
         return 0
@@ -64,48 +82,34 @@ preserve_user_customizations() {
     # Handle known folders and also copy any other custom folders
     for folder in .claude/*; do
         [ -d "$folder" ] || continue
+        [ -L "$folder" ] && continue  # Skip if it's a symlink
+
         folder_name="$(basename "$folder")"
 
         # Determine .ai target dir
-        target_dir=""
         if [[ "$folder_name" == "commands" ]]; then
-            target_dir=".ai/commands"
-            # Only copy if it's not a symlink
-            if [ ! -L "$folder" ]; then
-                find "$folder" -type f -name "*.md" 2>/dev/null | while read file; do
-                    relative_path="${file#$folder/}"
-                    dest_dir="$target_dir/$(dirname "$relative_path")"
-                    mkdir -p "$dest_dir"
-                    cp "$file" "$dest_dir/"
-                    echo -e "${GREEN}✓${NC} Copied custom command: $relative_path"
-                done
-            fi
-            continue
+            find "$folder" -type f ! -type l -name "*.md" 2>/dev/null | while read file; do
+                relative_path="${file#$folder/}"
+                dest_dir=".ai/commands/$(dirname "$relative_path")"
+                mkdir -p "$dest_dir"
+                cp "$file" "$dest_dir/"
+                echo -e "${GREEN}✓${NC} Copied custom command: $relative_path → .ai/commands/"
+            done
         elif [[ "$folder_name" == "agents" ]]; then
-            target_dir=".ai/agents"
-            if [ ! -L "$folder" ]; then
-                find "$folder" -type f -name "*.md" 2>/dev/null | while read file; do
-                    cp "$file" "$target_dir/"
-                    echo -e "${GREEN}✓${NC} Copied custom agent: $(basename "$file")"
-                done
-            fi
-            continue
+            find "$folder" -type f ! -type l -name "*.md" 2>/dev/null | while read file; do
+                cp "$file" ".ai/agents/"
+                echo -e "${GREEN}✓${NC} Copied custom agent: $(basename "$file") → .ai/agents/"
+            done
         elif [[ "$folder_name" == "output-styles" ]]; then
-            target_dir=".ai/avatars"
-            if [ ! -L "$folder" ]; then
-                find "$folder" -type f -name "*.md" 2>/dev/null | while read file; do
-                    cp "$file" "$target_dir/"
-                    echo -e "${GREEN}✓${NC} Copied custom avatar: $(basename "$file")"
-                done
-            fi
-            continue
+            find "$folder" -type f ! -type l -name "*.md" 2>/dev/null | while read file; do
+                cp "$file" ".ai/avatars/"
+                echo -e "${GREEN}✓${NC} Copied custom avatar: $(basename "$file") → .ai/avatars/"
+            done
         else
-            # For any other folder, copy its full tree to .ai/<folder_name>, but skip symlinks
-            if [ ! -L "$folder" ]; then
-                mkdir -p ".ai/${folder_name}"
-                cp -R "$folder/." ".ai/${folder_name}/"
-                echo -e "${GREEN}✓${NC} Copied custom folder: $folder_name → .ai/${folder_name}/"
-            fi
+            # For any other folder, copy its full tree to .ai/<folder_name>/
+            mkdir -p ".ai/${folder_name}"
+            cp -R "$folder/." ".ai/${folder_name}/"
+            echo -e "${GREEN}✓${NC} Copied custom folder: $folder_name → .ai/${folder_name}/"
         fi
     done
 }
@@ -132,20 +136,38 @@ create_symlinks() {
         echo -e "${GREEN}✓${NC} Linked .claude/CLAUDE.md → .ai/AGENTS.md"
     fi
 
-    # Symlink commands folder
-    if [ -d ".ai/commands" ]; then
-        ln -sf ../.ai/commands .claude/commands
-        echo -e "${GREEN}✓${NC} Linked .claude/commands/ → .ai/commands/"
-    fi
+    # Create base directories
+    mkdir -p .claude/commands .claude/agents .claude/output-styles
 
-    # Symlink agents folder
-    if [ -d ".ai/agents" ]; then
-        ln -sf ../.ai/agents .claude/agents
-        echo -e "${GREEN}✓${NC} Linked .claude/agents/ → .ai/agents/"
-    fi
+    # Get installed plugins
+    local plugins=($(get_installed_plugins))
 
-    # Symlink avatars folder
+    # Symlink each plugin's subdirectories
+    for plugin in "${plugins[@]}"; do
+        # Link commands from this plugin
+        if [ -d ".ai/commands/$plugin" ]; then
+            ln -sf "../../.ai/commands/$plugin" ".claude/commands/$plugin"
+            echo -e "${GREEN}✓${NC} Linked .claude/commands/$plugin/ → .ai/commands/$plugin/"
+        fi
+
+        # Link agents from this plugin
+        if [ -d ".ai/agents/$plugin" ]; then
+            ln -sf "../../.ai/agents/$plugin" ".claude/agents/$plugin"
+            echo -e "${GREEN}✓${NC} Linked .claude/agents/$plugin/ → .ai/agents/$plugin/"
+        fi
+
+        # Link context from this plugin (if any)
+        if [ -d ".ai/context/$plugin" ]; then
+            mkdir -p .claude/context
+            ln -sf "../../.ai/context/$plugin" ".claude/context/$plugin"
+            echo -e "${GREEN}✓${NC} Linked .claude/context/$plugin/ → .ai/context/$plugin/"
+        fi
+    done
+
+    # Symlink avatars folder (output-styles for Claude Code)
     if [ -d ".ai/avatars" ]; then
+        # Remove the directory first to allow symlinking
+        rmdir .claude/output-styles 2>/dev/null || true
         ln -sf ../.ai/avatars .claude/output-styles
         echo -e "${GREEN}✓${NC} Linked .claude/output-styles/ → .ai/avatars/"
     fi
@@ -172,8 +194,9 @@ print_summary() {
     echo ""
     echo "Structure created:"
     echo "  .claude/CLAUDE.md                → .ai/AGENTS.md"
-    echo "  .claude/commands/                → .ai/commands/"
-    echo "  .claude/agents/                  → .ai/agents/"
+    echo "  .claude/commands/<plugin>/       → .ai/commands/<plugin>/"
+    echo "  .claude/agents/<plugin>/         → .ai/agents/<plugin>/"
+    echo "  .claude/context/<plugin>/        → .ai/context/<plugin>/"
     echo "  .claude/output-styles/           → .ai/avatars/"
     echo "  .claude/settings.json            (copied from templates)"
     echo "  .ai/scripts/claude/              (Claude-specific scripts)"

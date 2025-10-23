@@ -47,6 +47,24 @@ backup_existing_config() {
     echo -e "${GREEN}✓${NC} Backup created at $BACKUP_DIR"
 }
 
+get_installed_plugins() {
+    if [ ! -f ".ai/config.jsonc" ]; then
+        echo ""
+        return
+    fi
+
+    # Strip comments from JSONC
+    local config_json=$(grep -v '^\s*//' ".ai/config.jsonc" | sed 's|//.*||g')
+
+    # Check if jq is available
+    if command -v jq &> /dev/null; then
+        echo "$config_json" | jq -r '.plugins[]' 2>/dev/null || echo ""
+    else
+        # Fallback: simple grep/sed parsing
+        echo "$config_json" | grep -o '"plugins":\s*\[.*\]' | sed 's/.*\[//' | sed 's/\].*//' | tr ',' '\n' | tr -d ' "' | grep -v '^$'
+    fi
+}
+
 preserve_user_customizations() {
     if [ ! -d ".cursor" ]; then
         return 0
@@ -55,33 +73,47 @@ preserve_user_customizations() {
     echo "📦 Preserving custom files..."
 
     # Ensure .ai directories exist
-    mkdir -p .ai/context
+    mkdir -p .ai/context .ai/commands .ai/agents
 
-    # Copy custom rules (non-symlink .mdc files)
+    # Copy custom rules (non-symlink .mdc and .md files)
     if [ -d ".cursor/rules" ]; then
-        find .cursor/rules -type f ! -type l -name "*.mdc" 2>/dev/null | while read file; do
+        find .cursor/rules -type f ! -type l \( -name "*.mdc" -o -name "*.md" \) 2>/dev/null | while read file; do
             filename=$(basename "$file")
             if [ "$filename" != "main.mdc" ]; then
-                # Copy to .ai/context/ preserving .mdc extension
-                cp "$file" ".ai/context/${filename}"
-                echo -e "${GREEN}✓${NC} Copied custom rule: $filename → .ai/context/"
-            fi
-        done
-
-        # Also check for nested directories with .md files
-        find .cursor/rules -type f ! -type l -name "*.md" 2>/dev/null | while read file; do
-            relative_path="${file#.cursor/rules/}"
-            # Skip if it's a symlink
-            if [ ! -L "$file" ]; then
-                target_dir=".ai/context/$(dirname "$relative_path")"
-                mkdir -p "$target_dir"
-                cp "$file" "$target_dir/"
-                echo -e "${GREEN}✓${NC} Copied custom file: $relative_path → .ai/context/"
+                # Skip symlinked directories content
+                if [ ! -L "$file" ]; then
+                    cp "$file" ".ai/context/${filename}"
+                    echo -e "${GREEN}✓${NC} Copied custom rule: $filename → .ai/context/"
+                fi
             fi
         done
     fi
 
-    # Copy any non-standard directories/files from .cursor/ to .ai/
+    # Copy custom commands
+    if [ -d ".cursor/commands" ]; then
+        find .cursor/commands -type f ! -type l -name "*.md" 2>/dev/null | while read file; do
+            relative_path="${file#.cursor/commands/}"
+            # Skip symlinked directories
+            if [ ! -L "$file" ]; then
+                dest_dir=".ai/commands/$(dirname "$relative_path")"
+                mkdir -p "$dest_dir"
+                cp "$file" "$dest_dir/"
+                echo -e "${GREEN}✓${NC} Copied custom command: $relative_path → .ai/commands/"
+            fi
+        done
+    fi
+
+    # Copy custom agents
+    if [ -d ".cursor/agents" ]; then
+        find .cursor/agents -type f ! -type l -name "*.md" 2>/dev/null | while read file; do
+            if [ ! -L "$file" ]; then
+                cp "$file" ".ai/agents/"
+                echo -e "${GREEN}✓${NC} Copied custom agent: $(basename "$file") → .ai/agents/"
+            fi
+        done
+    fi
+
+    # Copy any non-standard directories/files from .cursor/ to .ai/<item_name>/
     echo "📦 Preserving non-standard directories..."
     for item in .cursor/*; do
         if [ ! -e "$item" ]; then
@@ -90,18 +122,20 @@ preserve_user_customizations() {
 
         item_name=$(basename "$item")
 
-        # Skip the known 'rules' directory (already handled above)
-        if [ "$item_name" = "rules" ]; then
+        # Skip the known directories (already handled above)
+        if [ "$item_name" = "rules" ] || [ "$item_name" = "commands" ] || [ "$item_name" = "agents" ]; then
             continue
         fi
 
-        # Copy unknown items to .ai/
+        # Copy unknown items to .ai/<item_name>/
         if [ -d "$item" ] && [ ! -L "$item" ]; then
-            cp -r "$item" ".ai/$item_name"
-            echo -e "${GREEN}✓${NC} Copied custom directory: $item_name/"
+            mkdir -p ".ai/${item_name}"
+            cp -r "$item/." ".ai/${item_name}/"
+            echo -e "${GREEN}✓${NC} Copied custom directory: $item_name/ → .ai/${item_name}/"
         elif [ -f "$item" ]; then
+            mkdir -p ".ai"
             cp "$item" ".ai/$item_name"
-            echo -e "${GREEN}✓${NC} Copied custom file: $item_name"
+            echo -e "${GREEN}✓${NC} Copied custom file: $item_name → .ai/"
         fi
     done
 }
@@ -128,23 +162,32 @@ create_symlinks() {
         echo -e "${GREEN}✓${NC} Linked .cursor/rules/main.mdc → .ai/AGENTS.md"
     fi
 
-    # Symlink context folder
-    if [ -d ".ai/context" ]; then
-        ln -sf ../../.ai/context .cursor/rules/context
-        echo -e "${GREEN}✓${NC} Linked .cursor/rules/context/ → .ai/context/"
-    fi
+    # Get installed plugins
+    local plugins=($(get_installed_plugins))
 
-    # Symlink commands folder (directly in .cursor/)
-    if [ -d ".ai/commands" ]; then
-        ln -sf ../.ai/commands .cursor/commands
-        echo -e "${GREEN}✓${NC} Linked .cursor/commands/ → .ai/commands/"
-    fi
+    # Symlink each plugin's context into .cursor/rules/
+    for plugin in "${plugins[@]}"; do
+        if [ -d ".ai/context/$plugin" ]; then
+            ln -sf "../../../.ai/context/$plugin" ".cursor/rules/$plugin"
+            echo -e "${GREEN}✓${NC} Linked .cursor/rules/$plugin/ → .ai/context/$plugin/"
+        fi
+    done
 
-    # Symlink agents folder (directly in .cursor/)
-    if [ -d ".ai/agents" ]; then
-        ln -sf ../.ai/agents .cursor/agents
-        echo -e "${GREEN}✓${NC} Linked .cursor/agents/ → .ai/agents/"
-    fi
+    # Create base directories for commands and agents
+    mkdir -p .cursor/commands .cursor/agents
+
+    # Symlink each plugin's commands and agents
+    for plugin in "${plugins[@]}"; do
+        if [ -d ".ai/commands/$plugin" ]; then
+            ln -sf "../../.ai/commands/$plugin" ".cursor/commands/$plugin"
+            echo -e "${GREEN}✓${NC} Linked .cursor/commands/$plugin/ → .ai/commands/$plugin/"
+        fi
+
+        if [ -d ".ai/agents/$plugin" ]; then
+            ln -sf "../../.ai/agents/$plugin" ".cursor/agents/$plugin"
+            echo -e "${GREEN}✓${NC} Linked .cursor/agents/$plugin/ → .ai/agents/$plugin/"
+        fi
+    done
 }
 
 print_summary() {
@@ -153,9 +196,9 @@ print_summary() {
     echo ""
     echo "Structure created:"
     echo "  .cursor/rules/main.mdc           → .ai/AGENTS.md"
-    echo "  .cursor/rules/context/           → .ai/context/"
-    echo "  .cursor/commands/                → .ai/commands/"
-    echo "  .cursor/agents/                  → .ai/agents/"
+    echo "  .cursor/rules/<plugin>/          → .ai/context/<plugin>/"
+    echo "  .cursor/commands/<plugin>/       → .ai/commands/<plugin>/"
+    echo "  .cursor/agents/<plugin>/         → .ai/agents/<plugin>/"
     echo ""
     echo "✨ Dynamic updates: Changes to .ai/ are immediately available!"
     echo ""

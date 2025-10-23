@@ -150,33 +150,30 @@ add_plugin() {
         fi
     done
 
-    # Copy plugin files to .ai/
+    # Copy plugin files to .ai/<type>/<plugin-name>/
     echo -e "${BLUE}Installing plugin: $plugin_name${NC}"
 
+    # Copy commands to .ai/commands/<plugin-name>/
     if [ -d "$plugins_dir/$plugin_name/commands" ]; then
         mkdir -p .ai/commands
-        cp -r "$plugins_dir/$plugin_name/commands"/* .ai/commands/
-        echo -e "${GREEN}✓${NC} Copied commands"
+        cp -r "$plugins_dir/$plugin_name/commands" ".ai/commands/$plugin_name"
+        local cmd_count=$(find ".ai/commands/$plugin_name" -name "*.md" | wc -l | tr -d ' ')
+        echo -e "${GREEN}✓${NC} Commands: $cmd_count → .ai/commands/$plugin_name/"
     fi
 
+    # Copy agents to .ai/agents/<plugin-name>/
     if [ -d "$plugins_dir/$plugin_name/agents" ]; then
         mkdir -p .ai/agents
-        cp -r "$plugins_dir/$plugin_name/agents"/* .ai/agents/
-        echo -e "${GREEN}✓${NC} Copied agents"
+        cp -r "$plugins_dir/$plugin_name/agents" ".ai/agents/$plugin_name"
+        local agent_count=$(find ".ai/agents/$plugin_name" -name "*.md" | wc -l | tr -d ' ')
+        echo -e "${GREEN}✓${NC} Agents: $agent_count → .ai/agents/$plugin_name/"
     fi
 
+    # Copy context to .ai/context/<plugin-name>/
     if [ -d "$plugins_dir/$plugin_name/context" ]; then
         mkdir -p .ai/context
-        # For lang-* plugins, copy the context folder with the plugin name
-        if [[ "$plugin_name" == lang-* ]]; then
-            lang_name="${plugin_name#lang-}"
-            mkdir -p ".ai/context/$lang_name"
-            cp -r "$plugins_dir/$plugin_name/context"/* ".ai/context/$lang_name/"
-            echo -e "${GREEN}✓${NC} Copied context to .ai/context/$lang_name/"
-        else
-            cp -r "$plugins_dir/$plugin_name/context"/* .ai/context/
-            echo -e "${GREEN}✓${NC} Copied context to .ai/context/"
-        fi
+        cp -r "$plugins_dir/$plugin_name/context" ".ai/context/$plugin_name"
+        echo -e "${GREEN}✓${NC} Context → .ai/context/$plugin_name/"
     fi
 
     # Update .ai/config.jsonc

@@ -132,12 +132,20 @@ echo -e "${BLUE}📦 Installing core plugin...${NC}"
 
 if [ -d "$TEMP_DIR/templates/plugins/core/commands" ]; then
     mkdir -p .ai/commands
-    cp -r "$TEMP_DIR/templates/plugins/core/commands"/* .ai/commands/ 2>/dev/null || true
+    cp -r "$TEMP_DIR/templates/plugins/core/commands" .ai/commands/core
+    echo -e "${GREEN}✓${NC} Commands → .ai/commands/core/"
 fi
 
 if [ -d "$TEMP_DIR/templates/plugins/core/agents" ]; then
     mkdir -p .ai/agents
-    cp -r "$TEMP_DIR/templates/plugins/core/agents"/* .ai/agents/ 2>/dev/null || true
+    cp -r "$TEMP_DIR/templates/plugins/core/agents" .ai/agents/core
+    echo -e "${GREEN}✓${NC} Agents → .ai/agents/core/"
+fi
+
+if [ -d "$TEMP_DIR/templates/plugins/core/context" ]; then
+    mkdir -p .ai/context
+    cp -r "$TEMP_DIR/templates/plugins/core/context" .ai/context/core
+    echo -e "${GREEN}✓${NC} Context → .ai/context/core/"
 fi
 
 echo -e "${GREEN}✓ Core plugin installed${NC}"

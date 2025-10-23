@@ -75,29 +75,30 @@ echo -e "${BLUE}📦 Updating plugins...${NC}"
 for plugin in "${PLUGINS[@]}"; do
     echo "  Updating: $plugin"
 
-    # Copy commands
+    # Remove old plugin files from .ai/<type>/<plugin>/
+    rm -rf ".ai/commands/$plugin" 2>/dev/null
+    rm -rf ".ai/agents/$plugin" 2>/dev/null
+    rm -rf ".ai/context/$plugin" 2>/dev/null
+
+    # Copy commands to .ai/commands/<plugin>/
     if [ -d "$TEMP_DIR/templates/plugins/$plugin/commands" ]; then
         mkdir -p .ai/commands
-        cp -r "$TEMP_DIR/templates/plugins/$plugin/commands"/* .ai/commands/ 2>/dev/null || true
+        cp -r "$TEMP_DIR/templates/plugins/$plugin/commands" ".ai/commands/$plugin"
+        echo -e "${GREEN}✓${NC} Commands → .ai/commands/$plugin/"
     fi
 
-    # Copy agents
+    # Copy agents to .ai/agents/<plugin>/
     if [ -d "$TEMP_DIR/templates/plugins/$plugin/agents" ]; then
         mkdir -p .ai/agents
-        cp -r "$TEMP_DIR/templates/plugins/$plugin/agents"/* .ai/agents/ 2>/dev/null || true
+        cp -r "$TEMP_DIR/templates/plugins/$plugin/agents" ".ai/agents/$plugin"
+        echo -e "${GREEN}✓${NC} Agents → .ai/agents/$plugin/"
     fi
 
-    # Copy context
+    # Copy context to .ai/context/<plugin>/
     if [ -d "$TEMP_DIR/templates/plugins/$plugin/context" ]; then
         mkdir -p .ai/context
-        # For lang-* plugins, copy the context folder with the plugin name
-        if [[ "$plugin" == lang-* ]]; then
-            lang_name="${plugin#lang-}"
-            mkdir -p ".ai/context/$lang_name"
-            cp -r "$TEMP_DIR/templates/plugins/$plugin/context"/* ".ai/context/$lang_name/" 2>/dev/null || true
-        else
-            cp -r "$TEMP_DIR/templates/plugins/$plugin/context"/* .ai/context/ 2>/dev/null || true
-        fi
+        cp -r "$TEMP_DIR/templates/plugins/$plugin/context" ".ai/context/$plugin"
+        echo -e "${GREEN}✓${NC} Context → .ai/context/$plugin/"
     fi
 done
 
