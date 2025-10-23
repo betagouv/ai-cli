@@ -48,10 +48,20 @@ fi
 # Check if .ai directory already exists
 if [ -d ".ai" ]; then
     echo -e "${YELLOW}⚠️  .ai folder already exists${NC}"
-    read -p "Do you want to overwrite existing files? (y/N): " -n 1 -r </dev/tty
+    echo ""
+    echo -e "${BLUE}AI CLI is already installed in this project.${NC}"
+    echo ""
+    echo "To manage your installation, use:"
+    echo -e "  ${GREEN}.ai/cli plugins list${NC}       - List available plugins"
+    echo -e "  ${GREEN}.ai/cli plugins add <name>${NC} - Install a plugin"
+    echo -e "  ${GREEN}.ai/cli update${NC}             - Update ai-cli and plugins"
+    echo ""
+    echo -e "${YELLOW}⚠️  Re-installing will overwrite your configuration!${NC}"
+    echo ""
+    read -p "Do you still want to reinstall? (y/N): " -n 1 -r </dev/tty
     echo
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        echo -e "${YELLOW}Installation cancelled${NC}"
+        echo -e "${GREEN}Installation cancelled${NC}"
         exit 0
     fi
 fi
