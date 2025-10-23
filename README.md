@@ -25,7 +25,7 @@ Modern development teams face a configuration nightmare when using AI assistants
 - ✅ **Modular plugins** - Install only what you need
 - ✅ **Write once, use everywhere** - One configuration, all IDEs
 - ✅ **Git-friendly** - Commit only `.ai/`, configs are generated
-- ✅ **Easy updates** - `agnostic-ai update` to get latest
+- ✅ **Easy updates** - `.ai/cli update` to get latest
 - ✅ **Team synchronization** - Everyone gets the same setup
 - ✅ **Works everywhere** - Any bash system (macOS, Linux, WSL)
 
