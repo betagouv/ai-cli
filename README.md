@@ -4,6 +4,24 @@
 
 > Share one AI configuration across all your AI coding tools - write once, use everywhere
 
+## ⚡ TLDR - Quick Start
+
+```bash
+# 1. Install agnostic-ai
+curl -fsSL https://raw.githubusercontent.com/betagouv/agnostic-ai/main/install.sh | bash
+
+# 2. Migrate your existing documentation (optional)
+.ai/cli migrate        # Shows instructions
+
+# 3. Use commands to build features
+# In your IDE (Claude Code/Cursor):
+/core:feature-create   # Scaffold new features with EPCT methodology
+/core:command-create   # Create custom commands
+/core:agent-create     # Create specialized agents
+```
+
+**That's it!** Your AI configuration is ready and version-controlled in `.ai/`
+
 ## 🎯 The Problem
 
 Modern development teams face a configuration nightmare when using AI assistants:
