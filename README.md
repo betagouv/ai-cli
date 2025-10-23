@@ -375,6 +375,19 @@ git pull
 | **Cursor** | ✅ Full | `.cursor/` (symlinks) |
 | **Others** | 🔜 Coming | [Contribute!](templates/ides/CONTRIBUTE.md) |
 
+## ⚡ Shell Aliases for Claude CLI
+
+Speed up your Claude CLI workflow with convenient aliases:
+
+```bash
+alias cc="claude --dangerously-skip-permissions"
+alias ccc="claude --dangerously-skip-permissions -c"
+```
+
+**Why it's safe:** The agnostic-ai configuration includes a PreToolsBash hook that intercepts potentially destructive commands before execution, giving you speed without compromising safety.
+
+📖 **Full setup guide:** [templates/ides/claude/SHELL-SETUP.md](templates/ides/claude/SHELL-SETUP.md)
+
 ## 🤝 Contributing
 
 Want to add support for your favorite IDE or create a plugin?

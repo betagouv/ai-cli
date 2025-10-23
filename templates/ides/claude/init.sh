@@ -189,6 +189,23 @@ print_summary() {
     if [ -d ".tmp" ]; then
         echo -e "${BLUE}📦 Backup files are stored in .tmp/${NC}"
     fi
+    echo ""
+    echo -e "${BLUE}💡 Recommended: Set up shell aliases for faster Claude CLI access${NC}"
+    echo ""
+    echo "Add these aliases to your ~/.zshrc or ~/.bashrc:"
+    echo ""
+    echo -e "${GREEN}  alias cc=\"claude --dangerously-skip-permissions\"${NC}"
+    echo -e "${GREEN}  alias ccc=\"claude --dangerously-skip-permissions -c\"${NC}"
+    echo ""
+    echo "Why --dangerously-skip-permissions is safe:"
+    echo "  • Claude settings.json includes PreToolsBash hook"
+    echo "  • PreToolsBash safely intercepts potentially destructive commands"
+    echo "  • You get faster workflow without compromising safety"
+    echo ""
+    echo "Usage after setting aliases:"
+    echo "  cc               - Start Claude CLI without permission prompts"
+    echo "  ccc              - Start Claude CLI and continue previous conversation"
+    echo ""
 }
 
 # ==============================================================================
