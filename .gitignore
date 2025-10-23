@@ -22,3 +22,18 @@ coverage/
 
 # Build
 dist/
+
+# =============================================================================
+# claude - Auto-generated symlinks
+# ⚠️  Auto-generated - Do not edit manually
+# =============================================================================
+.claude/commands
+.claude/agents
+.claude/output-styles
+.claude/settings.json
+
+# =============================================================================
+# cursor - Auto-generated symlinks
+# ⚠️  Auto-generated - Do not edit manually
+# =============================================================================
+.cursor/
